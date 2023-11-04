@@ -26,8 +26,8 @@ class PybricksBleBroadcastDataType(IntEnum):
     # NB: These values are sent over the air so the numeric values must not be changed.
     # There can be at most 8 types since the values have to fit in 3 bits.
 
-    # The Python @c None value. */
-    NONE = 0
+    # Indicator that the next value is the one and only value (instead of a tuple). */
+    SINGLE_OBJECT = 0
     # The Python @c True value. */
     TRUE = 1
     # The Python @c False value. */
@@ -58,17 +58,20 @@ def _decode_next_value(
 
     Returns:
         Tuple of the next index, and the parsed data.
+        The parsed data is None if this is the SINGLE_OBJECT marker.
     """
 
     # data type and size
-    type = data[idx] >> 5
+    type_id = data[idx] >> 5
     size = data[idx] & 0x1F
-    data_type = PybricksBleBroadcastDataType(type)
+    data_type = PybricksBleBroadcastDataType(type_id)
     # move cursor to value
     idx += 1
 
     # data value
-    if data_type == PybricksBleBroadcastDataType.NONE:
+    if data_type == PybricksBleBroadcastDataType.SINGLE_OBJECT:
+        # Does not contain data by itself, is only used as indicator
+        # that the next data is the one and only object
         assert size == 0
         return idx, None
     elif data_type == PybricksBleBroadcastDataType.TRUE:
@@ -97,7 +100,14 @@ def _decode_next_value(
         raise ValueError(data_type)
 
 
-def decode_message(data: bytes) -> Tuple[int, Union[Tuple[any], None]]:
+def decode_message(
+    data: bytes
+) -> Tuple[
+    int,
+    Union[
+        Tuple[Union[bool, int, float, str, bytes]], Union[bool, int, float, str, bytes]
+    ],
+]:
     """
     Parses a Pybricks broadcast message, typically sourced from
     the BLE advertisement manufacturer data.
@@ -106,7 +116,8 @@ def decode_message(data: bytes) -> Tuple[int, Union[Tuple[any], None]]:
         data: The encoded data.
 
     Returns:
-        Tuple containing the Pybricks message channel and the original values.
+        Tuple containing the Pybricks message channel and the original value.
+        The original value is either a single object or a tuple.
     """
 
     # idx 0 is the channel
@@ -114,16 +125,20 @@ def decode_message(data: bytes) -> Tuple[int, Union[Tuple[any], None]]:
     # idx 1 is the message start
     idx = 1
     decoded_data = []
+    single_object = False
 
     while idx < len(data):
         idx, val = _decode_next_value(idx, data)
-        decoded_data.append(val)
+        if val is None:
+            single_object = True
+        else:
+            decoded_data.append(val)
 
-    return channel, tuple(decoded_data)
+    return channel, decoded_data[0] if single_object else tuple(decoded_data)
 
 
 def _encode_value(
-    val: Union[None, bool, int, float, str, bytes]
+    val: Union[bool, int, float, str, bytes]
 ) -> Tuple[int, Union[None, bytes]]:
     """
     Encodes the given value for a Pybricks broadcast message.
@@ -140,9 +155,7 @@ def _encode_value(
     size = 0
     encoded_val = None
 
-    if val is None:
-        data_type = PybricksBleBroadcastDataType.NONE
-    elif isinstance(val, bool):
+    if isinstance(val, bool):
         data_type = (
             PybricksBleBroadcastDataType.TRUE
             if val
@@ -182,7 +195,7 @@ def _encode_value(
 
 
 def encode_message(
-    channel: int = 0, *values: Union[None, bool, int, float, str, bytes]
+    channel: int = 0, *values: Union[bool, int, float, str, bytes]
 ) -> bytes:
     """
     Encodes the given values as a Pybricks broadcast message.
@@ -204,6 +217,11 @@ def encode_message(
 
     # idx 1 is the message start
     encoded_data = bytearray(encoded_channel)
+
+    if len(values) == 1:
+        # set SINGLE_OBJECT marker
+        header = PybricksBleBroadcastDataType.SINGLE_OBJECT << 5
+        encoded_data.append(header)
 
     for val in values:
         header, encoded_val = _encode_value(val)

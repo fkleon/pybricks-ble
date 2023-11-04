@@ -7,6 +7,27 @@ from pb_ble import decode_message, encode_message, pack_pnp_id
 
 
 class TestPybricksBleDecodeMessage(unittest.TestCase):
+    def test_decode_message_single_object(self):
+        # channel 200
+        # single object marker
+        # int8: 5
+        message = b"\xc8\x00\x61\x05"
+        channel, data = decode_message(message)
+
+        self.assertEqual(channel, 200)
+        self.assertEqual(data, 5)
+
+    # TODO: Check behaviour against reference implementation
+    def test_decode_message_single_object_tuple(self):
+        # channel 200
+        # int8: 5
+        message = b"\xc8\x61\x05"
+        channel, data = decode_message(message)
+
+        self.assertEqual(channel, 200)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0], 5)
+
     def test_decode_message_int8_int16_int32(self):
         # channel: 200
         # str: '8_16_32'
@@ -56,22 +77,20 @@ class TestPybricksBleDecodeMessage(unittest.TestCase):
         self.assertEqual(data[0], "float")
         self.assertEqual(data[1], 3.1415927410125732)  # float32 pi
 
-    def test_decode_message_none_bool(self):
+    def test_decode_message_str_bool(self):
         # channel: 200
         # str: 'NTF'
-        # None
         # bool: True
         # bool: False
-        message = b"\xc8\xa3NTF\x00 @"
+        message = b"\xc8\xa3NTF @"
         channel, data = decode_message(message)
 
         self.assertEqual(channel, 200)
         self.assertIsNotNone(data)
-        self.assertEqual(len(data), 4)
+        self.assertEqual(len(data), 3)
         self.assertEqual(data[0], "NTF")
-        self.assertEqual(data[1], None)
-        self.assertEqual(data[2], True)
-        self.assertEqual(data[3], False)
+        self.assertEqual(data[1], True)
+        self.assertEqual(data[2], False)
 
     def test_decode_message_bytes(self):
         # channel: 200
@@ -97,6 +116,15 @@ class TestPybricksBleDecodeMessage(unittest.TestCase):
 
 
 class TestPybricksBleEncodeMessage(unittest.TestCase):
+    def test_encode_message_single_object(self):
+        data = encode_message(200, 5)
+        self.assertEqual(data, b"\xc8\x00\x61\x05")
+
+    @unittest.skip("Check behaviour against reference implementation")
+    def test_encode_message_single_object_tuple(self):
+        data = encode_message(200, (1))
+        self.assertEqual(data, b"\xc8\x61\x01")
+
     def test_encode_message_int8_int16_int32(self):
         data = encode_message(200, "8_16_32", 127, 128, 32_767, 32_876)
         self.assertEqual(data, b"\xc8\xa78_16_32a\x7fb\x80\x00b\xff\x7fdl\x80\x00\x00")
@@ -109,9 +137,9 @@ class TestPybricksBleEncodeMessage(unittest.TestCase):
         data = encode_message(0, "float", 3.1415927410125732)  # float32 pi
         self.assertEqual(data, b"\x00\xa5float\x84\xdb\x0fI@")
 
-    def test_encode_message_none_bool(self):
-        data = encode_message(200, "NTF", None, True, False)
-        self.assertEqual(data, b"\xc8\xa3NTF\x00 @")
+    def test_encode_message_str_bool(self):
+        data = encode_message(200, "NTF", True, False)
+        self.assertEqual(data, b"\xc8\xa3NTF @")
 
     def test_encode_message_bytes(self):
         data = encode_message(200, "bytes", b"\x00\xc4\x81")

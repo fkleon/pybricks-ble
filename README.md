@@ -8,7 +8,7 @@ This library also includes tools to enable BLE broadcast communication between P
 
 This requires Python 3.10 on Linux with BlueZ (experimental features recommended).
 
-Note: Supports the message format introduced in Pybricks `v3.3.0b5`, but **does not support** the updated message format from Pybricks `v3.3.0b9`.
+Note: Supports the message format first introduced in Pybricks `v3.3.0b5` and updated in `v3.3.0b9`.
 
 ## BLE broadcaster
 
