@@ -26,11 +26,6 @@ from pb_ble import decode_message
 
 log = logging.getLogger(__name__)
 
-bd_address = "3F:DF:89:08:00:20"
-bd_name = "Pybricks Hub"  # "1F:9D:AA:23:A0:62"
-# ad_local_name = "crossing"
-ad_local_name = "Pybricks Hub"
-
 service_uuids = [
     "00001800-0000-1000-8000-00805f9b34fb",  # Generic Access
     "00001801-0000-1000-8000-00805f9b34fb",  # Generic Attribute
@@ -52,6 +47,28 @@ async def run(
     or_patterns = None
     filters = None
 
+    # Active scan allows filtering for
+    # - device address/name pattern (via discovery filter)
+    # - broadcast channel ("software" filter)
+    # - local name ("software" filter)
+    # - rssi (via discovery filter)
+    if scanning_mode == "active":
+        # TODO: verify supported filter features
+        # Patterns discovery filter requires BlueZ >= 5.54
+        filters = BlueZDiscoveryFilters(Pattern=device_name)
+        if rssi_threshold is not None:
+            filters["RSSI"] = rssi_threshold
+        # filters = BlueZDiscoveryFilters(Pattern=bd_name, RSSI=-60)
+        # TODO: UUIDs filter returns no results
+        # filters = BlueZDiscoveryFilters(UUIDs=[PNP_ID_UUID])
+        # filters = BlueZDiscoveryFilters(UUIDs=[PNP_ID_UUID], RSSI=-60)
+        # filters = BlueZDiscoveryFilters(UUIDs=[PNP_ID_UUID], Pattern=bd_name, RSSI=-60)
+        log.debug("Active scan filters: %r", filters)
+
+    # Passive scan allows filtering for
+    # - device address ("software" filter)
+    # - broadcast channel (via advertising monitor or_patterns)
+    # - rssi ("software" filter)
     if scanning_mode == "passive":
         # TODO: verify scan mode is supported
         # passive scanning on Linux requires BlueZ >= 5.55 with --experimental enabled and Linux kernel >= 5.10
@@ -84,18 +101,6 @@ async def run(
         # OrPattern(0, AdvertisementDataType.FLAGS, b"\x1a"),
         # ]
         log.debug("Passive scan or_patterns: %s", or_patterns)
-    else:
-        # TODO: verify supported filter features
-        # Patterns discovery filter requires BlueZ >= 5.54
-        filters = BlueZDiscoveryFilters(Pattern=bd_name)
-        if rssi_threshold is not None:
-            filters["RSSI"] = rssi_threshold
-        # filters = BlueZDiscoveryFilters(Pattern=bd_name, RSSI=-60)
-        # TODO: UUIDs filter returns no results
-        # filters = BlueZDiscoveryFilters(UUIDs=[PNP_ID_UUID])
-        # filters = BlueZDiscoveryFilters(UUIDs=[PNP_ID_UUID], RSSI=-60)
-        # filters = BlueZDiscoveryFilters(UUIDs=[PNP_ID_UUID], Pattern=bd_name, RSSI=-60)
-        log.debug("Active scan filters: %r", filters)
 
     async with BleakScanner(
         scanning_mode=scanning_mode,
@@ -159,15 +164,3 @@ async def run(
                     "Filtered AD due to missing manufacturer data: %r",
                     ad.manufacturer_data,
                 )
-
-
-# Active scan allows filtering for
-# - device address/name pattern (via discovery filter)
-# - rssi (via discovery filter)
-# - broadcast channel (software)
-# - local name (software)
-
-# Passive scan allows filtering for
-# - device address (software)
-# - broadcast channel (via advertising monitor or_patterns)
-# - rssi (software?)

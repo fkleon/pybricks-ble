@@ -10,20 +10,21 @@ from pb_ble.discover import run
 parser = argparse.ArgumentParser(
     prog="pb_observe",
     description="Observe Pybricks BLE broadcasts",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 )
 parser.add_argument(
     "channels",
     metavar="N [0 to 255]",
     type=int,
-    # choices=range(0, 256),
+    choices=range(0, 256),
     nargs="*",
-    help="Pybricks channels to observe",
+    help="Pybricks channels to observe, or all channels if not given.",
 )
 parser.add_argument(
     "--name",
     required=False,
     default="Pybricks Hub",
-    help="Bluetooth device name or Bluetooth address for discovery filter",
+    help="Bluetooth device name or Bluetooth address for discovery filter (active scan only)",
 )
 parser.add_argument(
     "--rssi",
@@ -31,13 +32,13 @@ parser.add_argument(
     type=int,
     choices=range(-120, 1),
     metavar="[-120 to 0]",
-    help="RSSI threshold for discovery filter",
+    help="RSSI threshold for discovery filter (active scan only)",
 )
 parser.add_argument(
     "--mode",
     required=False,
     choices=["active", "passive"],
-    default="active",
+    default="passive",
     help="BLE scanning mode",
 )
 parser.add_argument(

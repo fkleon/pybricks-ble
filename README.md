@@ -47,13 +47,13 @@ usage: pb_observe [-h] [--name NAME] [--rssi [-120 to 0]] [--mode {active,passiv
 Observe Pybricks BLE broadcasts
 
 positional arguments:
-  N [0 to 255]          Pybricks channels to observe
+  N [0 to 255]          Pybricks channels to observe, or all channels if not given. (default: None)
 
 options:
   -h, --help            show this help message and exit
-  --name NAME           Bluetooth device name or Bluetooth address for discovery filter
-  --rssi [-120 to 0]    RSSI threshold for discovery filter
+  --name NAME           Bluetooth device name or Bluetooth address for discovery filter (active scan only) (default: Pybricks Hub)
+  --rssi [-120 to 0]    RSSI threshold for discovery filter (active scan only) (default: None)
   --mode {active,passive}
-                        BLE scanning mode
-  --debug               Enable debug logging
+                        BLE scanning mode (default: passive)
+  --debug               Enable debug logging (default: False)
 ```
