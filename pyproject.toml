@@ -18,14 +18,14 @@ classifiers = [
 ]
 
 dependencies = [
-    "bleak == 0.21.1",
-    "bluetooth-adapters == 0.16.1",
-    "dbus-fast == 2.15.0",
-    "pybricksdev == 1.0.0a46",
+    "bleak >= 0.21.1",
+    "bluetooth-adapters ~= 0.16",
+    "dbus-fast ~= 2.15",
+    #"pybricksdev >= 1.0.0a46",
 ]
 
 [project.optional-dependencies]
-debug = ["bluetooth-data-tools == 1.15.0"]
+debug = ["bluetooth-data-tools ~= 1.15"]
 dev = ["pybricks-ble[debug]", "ruff ~= 0.1.6", "pytest ~= 7.4"]
 
 [project.urls]

@@ -2,15 +2,28 @@
 
 A Python implementation of the [Pybricks Bluetooth Low Energy Broadcast/Observe](https://github.com/pybricks/technical-info/blob/master/pybricks-ble-broadcast-observe.md) message format.
 
-This library also includes tools to enable BLE broadcast communication between Pybricks and a PC:
+Supports the message format first introduced in Pybricks `v3.3.0b5` and updated in `v3.3.0b9`.
+
+This library also includes CLI tools to communicate with Pybricks devices via BLE data broadcast:
 * The BLE broadcaster ("Pybricks server") for sending messages to a Pybricks device.
 * The BLE observer ("Pybricks client") for receiving messages from a Pybricks device.
 
-This requires Python 3.10 on Linux with BlueZ (experimental features recommended).
+Using the CLI tools requires Python 3.10 on Linux with BlueZ.
 
-Note: Supports the message format first introduced in Pybricks `v3.3.0b5` and updated in `v3.3.0b9`.
+## Development
 
-## BLE broadcaster
+This library requires `bleak >= 0.21.1` which conflicts with the latest `pybricksdev == 1.0.0a46` release.
+
+To work around this, `pybricksdev` is not listed in the project requirements and must be manually installed:
+
+```
+pip install pybricksdev==1.0.0a46
+pip install -e '.[dev]'
+```
+
+## Tools
+
+### BLE broadcaster
 
 Sends Pybricks BLE broadcasts.
 
@@ -33,11 +46,11 @@ options:
   --debug            Enable debug logging (default: False)
 ```
 
-## BLE observer
+### BLE observer
 
 Receives Pybricks BLE broadcasts via `active` or `passive` BLE scanning.
 
-Uses `bleak` for scanning. The recommended scanning mode is `passive` which requires BlueZ >= v5.64 with experimental features enabled.
+Uses `bleak` for scanning. The recommended scanning mode is `passive` which requires BlueZ >= 5.56 with experimental features enabled.
 
 Usage:
 
