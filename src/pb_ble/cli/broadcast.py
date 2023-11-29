@@ -3,10 +3,10 @@ CLI interface to send Pybricks BLE broadcasts.
 """
 import argparse
 import asyncio
+import json
 import logging
-from importlib import import_module
 
-from ..advertise import run
+from pb_ble.advertise import run
 
 # Requirements
 # - asyncio
@@ -32,18 +32,15 @@ from ..advertise import run
 parser = argparse.ArgumentParser(
     prog="pb_broadcast",
     description="Send Pybricks BLE broadcasts",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 )
-# TODO: specify channel and data via CLI
-"""
+
 parser.add_argument(
-    "channels",
-    metavar="N [0 to 255]",
-    type=int,
-    # choices=range(0, 256),
-    nargs="*",
-    help="Pybricks channels to broadcast on",
+    "data",
+    nargs="+",
+    type=json.loads,
+    help="Data to broadcast: channel followed by values",
 )
-"""
 
 # recommended to be 10 bytes or less
 parser.add_argument(
@@ -73,7 +70,9 @@ def main():
     if args.debug:
         logging.getLogger("pb_ble").setLevel(logging.DEBUG)
 
-    asyncio.run(run(device_name=args.name, timeout=args.timeout))
+    asyncio.run(
+        run(device_name=args.name, timeout=args.timeout, broadcasts=[tuple(args.data)])
+    )
 
 
 if __name__ == "__main__":

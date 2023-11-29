@@ -19,15 +19,18 @@ Uses `dbus_fast` to create broadcasts via simple BlueZ advertisement services.
 Usage:
 
 ```
-usage: pb_broadcast [-h] [--name NAME] [--timeout TIMEOUT] [--debug]
+usage: pb_broadcast [-h] [--name NAME] [--timeout TIMEOUT] [--debug] data [data ...]
 
 Send Pybricks BLE broadcasts
 
+positional arguments:
+  data               Data to broadcast: channel followed by values
+
 options:
-  -h, --help            show this help message and exit
-  --name NAME           Bluetooth device name
-  --timeout TIMEOUT     Broadcast timeout
-  --debug               Enable debug logging
+  -h, --help         show this help message and exit
+  --name NAME        Bluetooth device name (default: pb_vhub)
+  --timeout TIMEOUT  Broadcast timeout (default: 10)
+  --debug            Enable debug logging (default: False)
 ```
 
 ## BLE observer

@@ -33,9 +33,6 @@ log = logging.getLogger(name=__name__)
 
 ADVERTISING_MANAGER_INTERFACE = "org.bluez.LEAdvertisingManager1"
 
-# TODO parameterise this
-BROADCASTS = [(1, pi), (42, "Answer to everything"), (200, None, True, False)]
-
 
 async def get_adapter(bus: MessageBus):
     # TODO get HCI device path from DBus
@@ -58,7 +55,11 @@ async def get_adapter(bus: MessageBus):
     return adapter
 
 
-async def run(timeout: int, device_name: str):
+async def run(
+    timeout: int,
+    device_name: str,
+    broadcasts: List[Tuple[any]],
+):
     # Connect to D-Bus
     bus: MessageBus = await MessageBus(bus_type=BusType.SYSTEM).connect()
 
@@ -70,8 +71,8 @@ async def run(timeout: int, device_name: str):
 
     # pnp_id = pack_pnp_id(product_id=0x00, product_rev=0x00)
 
-    for broadcasts in BROADCASTS:
-        channel, *data = broadcasts
+    for broadcast in broadcasts:
+        channel, *data = broadcast
         message = encode_message(channel, *data)
 
         advertisement = BroadcastAdvertisement(device_name, channel)
