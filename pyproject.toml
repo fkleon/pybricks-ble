@@ -4,39 +4,36 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pb_ble"
+name = "pybricks-ble"
 version = "0.0.0" # version is currently unused but a required metadata field
 authors = [{ name = "Frederik Leonhardt", email = "frederik@leonhardt.co.nz" }]
-description = "Tooling to enable BLE broadcast communication between Pybricks and a PC"
+description = "Communicate with Pybricks devices using BLE data broadcasting"
 requires-python = ">=3.10"
 license = { text = "GNU General Public License v3 (GPLv3)" }
 classifiers = [
     "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Topic :: Communications",
     "Topic :: Software Development :: Embedded Systems",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 ]
 
 dependencies = [
-    "pybricksdev == 1.0.0a46",
     "bleak == 0.21.1",
-    "dbus-fast == 2.12.0",
     "bluetooth-adapters == 0.16.1",
+    "dbus-fast == 2.15.0",
+    "pybricksdev == 1.0.0a46",
 ]
 
 [project.optional-dependencies]
-debug = ["bluetooth-data-tools == 1.13.0", "bluetooth-adapters == 0.16.1"]
-dev = ["pb-ble[debug]", "ruff ~= 0.1.3", "pytest ~= 7.4"]
+debug = ["bluetooth-data-tools == 1.15.0"]
+dev = ["pybricks-ble[debug]", "ruff ~= 0.1.6", "pytest ~= 7.4"]
 
 [project.urls]
-Repository = "TBD"
+Repository = "https://github.com/fkleon/pybricks-ble"
 
 [project.scripts]
 pb_broadcast = "pb_ble.cli.broadcast:main"
 pb_observe = "pb_ble.cli.observe:main"
-
-[tool.ruff]
-target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I001"]

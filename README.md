@@ -30,7 +30,7 @@ options:
   --debug               Enable debug logging
 ```
 
-### BLE observer
+## BLE observer
 
 Receives Pybricks BLE broadcasts via `active` or `passive` BLE scanning.
 
