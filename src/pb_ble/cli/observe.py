@@ -16,7 +16,6 @@ parser.add_argument(
     "channels",
     metavar="N [0 to 255]",
     type=int,
-    choices=range(0, 256),
     nargs="*",
     help="Pybricks channels to observe, or all channels if not given.",
 )
