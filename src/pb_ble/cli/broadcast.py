@@ -39,7 +39,7 @@ parser.add_argument(
     "data",
     nargs="+",
     type=json.loads,
-    help="Data to broadcast: channel followed by values",
+    help="Data to broadcast: channel followed by JSON values",
 )
 
 # recommended to be 10 bytes or less

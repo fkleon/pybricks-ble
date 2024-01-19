@@ -37,7 +37,7 @@ usage: pb_broadcast [-h] [--name NAME] [--timeout TIMEOUT] [--debug] data [data 
 Send Pybricks BLE broadcasts
 
 positional arguments:
-  data               Data to broadcast: channel followed by values
+  data               Data to broadcast: channel followed by JSON values
 
 options:
   -h, --help         show this help message and exit
