@@ -101,7 +101,7 @@ def _decode_next_value(
 
 
 def decode_message(
-    data: bytes
+    data: bytes,
 ) -> Tuple[
     int,
     Union[
@@ -138,7 +138,7 @@ def decode_message(
 
 
 def _encode_value(
-    val: Union[bool, int, float, str, bytes]
+    val: Union[bool, int, float, str, bytes],
 ) -> Tuple[int, Union[None, bytes]]:
     """
     Encodes the given value for a Pybricks broadcast message.
