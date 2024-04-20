@@ -1,26 +1,28 @@
 """
-dbus-next BLE advertisement definitions
+BLE advertisement model definitions for dbus-fast.
 """
+
 import logging
 from enum import Enum
-from typing import Callable, Dict, List, Set, Union, no_type_check
+from typing import Any, Callable, Dict, List, Set, Union, no_type_check
 
+from dbus_fast.aio import MessageBus, ProxyInterface, ProxyObject
+from dbus_fast.proxy_object import BaseProxyInterface, BaseProxyObject
 from dbus_fast.service import ServiceInterface, _Property, dbus_property, method
 
 logger = logging.getLogger(__name__)
 
-# requires Python 3.10
-# Type: TypeAlias = Literal["broadcast", "peripheral"]
-# Includes: TypeAlias = Literal["tx-power", "appearance", "local-name", "rsi"]
-# SecondaryChannel: TypeAlias = Literal["1M", "2M", "Coded"]
-
 
 class Type(Enum):
+    """LEAdvertisement: Type"""
+
     BROADCAST = "broadcast"
     PERIPHERAL = "peripheral"
 
 
 class Include(Enum):
+    """LEAdvertisingManager: SupportedIncludes"""
+
     TX_POWER = "tx-power"
     APPEARANCE = "appearance"
     LOCAL_NAME = "local-name"
@@ -28,9 +30,35 @@ class Include(Enum):
 
 
 class SecondaryChannel(Enum):
+    """LEAdvertisingManager: SupportedSecondaryChannels"""
+
     ONE = "1M"
     TWO = "2M"
     CODED = "Coded"
+
+
+class Capability(Enum):
+    MAX_ADV_LEN = "MaxAdvLen"
+    """Max advertising data length [byte]"""
+
+    MAX_SCN_RSP_LEN = "MaxScnRspLen"
+    """Max advertising scan response length [byte]"""
+
+    MIN_TX_POWER = "MinTxPower"
+    """Min advertising tx power (dBm) [int16]"""
+
+    MAX_TX_POWER = "MaxTxPower"
+    """Max advertising tx power (dBm) [int16]"""
+
+
+class Feature(Enum):
+    """LEAdvertisingManager: SupportedFeatures"""
+
+    CAN_SET_TX_POWER = "CanSetTxPower"
+    """Indicates whether platform can specify tx power on each advertising instance."""
+
+    HARDWARE_OFFLOAD = "HardwareOffload"
+    """Indicates whether multiple advertising will be offloaded to the controller."""
 
 
 class LEAdvertisement(ServiceInterface):
@@ -300,6 +328,13 @@ class LEAdvertisement(ServiceInterface):
 
 
 class BroadcastAdvertisement(LEAdvertisement):
+    """
+    Implementation of a broadcast advertisement.
+
+    This sets the advertising tyoe to "broadcast" and toggles
+    available proeprties appropriately.
+    """
+
     def __init__(
         self,
         name: str,
@@ -333,3 +368,56 @@ class BroadcastAdvertisement(LEAdvertisement):
     def Release(self):
         super().Release()
         self.on_release(self.index)
+
+
+class LEAdvertisingManager:
+    """
+    Client implementation of the org.bluez.LEAdvertisementManager1 D-Bus interface.
+
+    https://github.com/bluez/bluez/blob/5.64/doc/advertising-api.txt
+    """
+
+    INTERFACE_NAME: str = "org.bluez.LEAdvertisingManager1"
+
+    def __init__(self, adapter: ProxyObject = None, adv_manager: ProxyInterface = None):
+        if adapter is None and adv_manager is None:
+            raise ValueError("adapter or adv_manager required")
+
+        if adv_manager is not None:
+            self.adv_manager = adv_manager
+        else:
+            self.adv_manager = adapter.get_interface(self.INTERFACE_NAME)
+
+    async def register_advertisement(self, adv: LEAdvertisement, options: dict = {}):
+        return await self.adv_manager.call_register_advertisement(adv.path, options)
+
+    async def unregister_advertisement(self, adv: LEAdvertisement):
+        return await self.adv_manager.call_unregister_advertisement(adv.path)
+
+    async def active_instances(self) -> int:
+        """Number of active advertising instances."""
+        return await self.adv_manager.get_active_instances()
+
+    async def supported_instances(self) -> int:
+        """Number of available advertising instances."""
+        return await self.adv_manager.get_supported_instances()
+
+    async def supported_includes(self) -> list[Include]:
+        """List of supported system includes."""
+        return await self.adv_manager.get_supported_includes()
+
+    async def supported_secondary_channels(self) -> list[SecondaryChannel]:
+        """List of supported Secondary channels.
+        Secondary channels can be used to advertise  with the corresponding PHY.
+        """
+        return await self.adv_manager.get_supported_secondary_channels()
+
+    async def supported_capabilities(self) -> dict[Capability, Any]:
+        """Enumerates Advertising-related controller capabilities useful to the client."""
+        return await self.adv_manager.get_supported_capabilities()
+
+    async def supported_features(self) -> list[Feature]:
+        """List  of supported platform features.
+        If no features are available on the platform, the SupportedFeatures array will be empty.
+        """
+        return await self.adv_manager.get_supported_features()

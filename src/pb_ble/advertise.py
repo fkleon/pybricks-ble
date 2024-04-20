@@ -1,6 +1,7 @@
 """
 Using dbus-fast to send bluetooth advertisements via BlueZ/DBus.
 """
+
 import asyncio
 import logging
 from enum import Enum
@@ -26,33 +27,10 @@ from dbus_fast.service import PropertyAccess, ServiceInterface, dbus_property, m
 from dbus_fast.signature import Variant
 from pybricksdev.ble.lwp3 import LEGO_CID
 
-from .advertisement import BroadcastAdvertisement
+from .bluezdbus import BroadcastAdvertisement, LEAdvertisingManager, get_adapter
 from .messages import encode_message, pack_pnp_id
 
 log = logging.getLogger(name=__name__)
-
-ADVERTISING_MANAGER_INTERFACE = "org.bluez.LEAdvertisingManager1"
-
-
-async def get_adapter(bus: MessageBus):
-    # TODO get HCI device path from DBus
-    # dbus_objs = await get_dbus_managed_objects()
-    """
-    'org.bluez.ProfileManager1': {}},
-    '/org/bluez/hci0': {'org.freedesktop.DBus.Introspectable': {},
-                         'org.bluez.Adapter1': {'Address': 'D0:3C:1F:6A:6E:67',
-
-    """
-    adapters = get_adapters()
-    # TODO validate default_adapter available
-    # await adapters.refresh()
-
-    adapter_path = f"/org/bluez/{adapters.default_adapter}"
-    adapter_node = await bus.introspect(defs.BLUEZ_SERVICE, adapter_path)
-    adapter: ProxyObject = bus.get_proxy_object(
-        defs.BLUEZ_SERVICE, adapter_path, adapter_node
-    )
-    return adapter
 
 
 async def run(
@@ -67,7 +45,9 @@ async def run(
     adapter: ProxyObject = await get_adapter(bus)
 
     # Get advertising manager
-    bluez_advertising_manager = adapter.get_interface(ADVERTISING_MANAGER_INTERFACE)
+    bluez_advertising_manager = adapter.get_interface(
+        LEAdvertisingManager.INTERFACE_NAME
+    )
 
     # pnp_id = pack_pnp_id(product_id=0x00, product_rev=0x00)
 
