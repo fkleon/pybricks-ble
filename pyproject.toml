@@ -36,6 +36,11 @@ Repository = "https://github.com/fkleon/pybricks-ble"
 pb_broadcast = "pb_ble.cli.broadcast:main"
 pb_observe = "pb_ble.cli.observe:main"
 
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
 [tool.ruff]
 src = ["src", "tests"]
 
