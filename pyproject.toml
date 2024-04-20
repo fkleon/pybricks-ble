@@ -27,7 +27,7 @@ dependencies = [
 
 [project.optional-dependencies]
 debug = ["bluetooth-data-tools ~= 1.15"]
-dev = ["pybricks-ble[debug]", "ruff ~= 0.1.6", "pytest ~= 7.4"]
+dev = ["pybricks-ble[debug]", "ruff ~= 0.3.7", "pytest ~= 7.4"]
 
 [project.urls]
 Repository = "https://github.com/fkleon/pybricks-ble"
@@ -36,9 +36,12 @@ Repository = "https://github.com/fkleon/pybricks-ble"
 pb_broadcast = "pb_ble.cli.broadcast:main"
 pb_observe = "pb_ble.cli.observe:main"
 
+[tool.ruff]
+src = ["src", "tests"]
+
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I001"]
 ignore = ["F401"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 combine-as-imports = true

@@ -1,6 +1,7 @@
 """
 List available Bluetooth adapters
 """
+
 import asyncio
 from pprint import pp
 

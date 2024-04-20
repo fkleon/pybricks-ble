@@ -1,6 +1,7 @@
 """
 CLI interface to listen for Pybricks BLE broadcasts.
 """
+
 import argparse
 import asyncio
 import logging

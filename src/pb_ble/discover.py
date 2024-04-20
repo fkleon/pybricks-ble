@@ -1,6 +1,7 @@
 """
 Receive bluetooth advertisements via bleak.
 """
+
 import argparse
 import asyncio
 import logging

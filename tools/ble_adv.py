@@ -1,6 +1,7 @@
 """
 Parse raw BLE advertisement data
 """
+
 from struct import unpack_from
 
 from bleak.assigned_numbers import AdvertisementDataType
