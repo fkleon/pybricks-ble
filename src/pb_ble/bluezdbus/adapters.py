@@ -1,4 +1,5 @@
-from pprint import pp
+import logging
+from pprint import pformat
 from typing import Optional, Tuple
 
 from bleak.backends.bluezdbus import defs
@@ -7,6 +8,8 @@ from bluetooth_adapters import (
     get_adapters,
 )
 from dbus_fast.aio import MessageBus, ProxyObject
+
+logger = logging.getLogger(__name__)
 
 adapters = get_adapters()
 
@@ -33,8 +36,12 @@ async def get_all_adapter_details() -> dict[str, AdapterDetailsExt]:
     return adapters_ext
 
 
-async def get_adapter_details(adapter_name: str) -> Tuple[str, AdapterDetailsExt]:
+async def get_adapter_details(
+    adapter_name: str = adapters.default_adapter,
+) -> Tuple[str, AdapterDetailsExt]:
     adapters = await get_all_adapter_details()
+    if adapter_name not in adapters:
+        raise ValueError(f"Adapter '{adapter_name}' not available")
     return adapter_name, adapters[adapter_name]
 
 
@@ -43,14 +50,17 @@ async def get_adapter(
 ) -> ProxyObject:
     name, details = await get_adapter_details(adapter_name)
 
-    print(f"Using Bluetooth adapter '{name}':")
-    pp(details)
+    logger.info(f"Using Bluetooth adapter '{name}': {pformat(details)}")
 
     # TODO: Check adapter capabilities here
     if not details["passive_scan"]:
-        print("WARNING: Bluetooth adapter cannot observe BLE advertisements!")
+        logger.warning(
+            f"Bluetooth adapter '{name}' does not support observing BLE advertisements!"
+        )
     if not details["advertise"]:
-        print("WARNING: Bluetooth adapter cannot broadcast BLE advertisements!")
+        logger.warning(
+            f"Bluetooth adapter '{name}' does not support broadcasting BLE advertisements!"
+        )
 
     # TODO: Get path from BlueZ
     adapter_path = f"/org/bluez/{name}"
