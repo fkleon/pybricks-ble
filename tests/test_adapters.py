@@ -3,8 +3,6 @@ from dbus_fast.aio import ProxyObject
 
 from pb_ble.bluezdbus import get_adapter
 
-pytestmark = pytest.mark.asyncio
-
 
 async def test_get_default_adapter(message_bus):
     adapter: ProxyObject = await get_adapter(message_bus)

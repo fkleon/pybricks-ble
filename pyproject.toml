@@ -39,6 +39,7 @@ pb_observe = "pb_ble.cli.observe:main"
 [tool.pytest.ini_options]
 addopts = [
     "--import-mode=importlib",
+    "--asyncio-mode=auto",
 ]
 
 [tool.ruff]
