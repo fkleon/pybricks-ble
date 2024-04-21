@@ -4,9 +4,10 @@ BLE advertisement model definitions for dbus-fast.
 
 import logging
 from enum import Enum
-from typing import Any, Callable, Dict, List, Set, Union, no_type_check
+from typing import Any, Callable, Dict, List, Set, Union, no_type_check, overload
 
 from dbus_fast.aio import MessageBus, ProxyInterface, ProxyObject
+from dbus_fast.constants import PropertyAccess
 from dbus_fast.proxy_object import BaseProxyInterface, BaseProxyObject
 from dbus_fast.service import ServiceInterface, _Property, dbus_property, method
 
@@ -65,7 +66,7 @@ class LEAdvertisement(ServiceInterface):
     """
     Implementation of the org.bluez.LEAdvertisement1 D-Bus interface.
 
-    https://github.com/bluez/bluez/blob/5.64/doc/advertising-api.txt
+    https://github.com/bluez/bluez/blob/5.75/doc/org.bluez.LEAdvertisement.rst
     """
 
     INTERFACE_NAME: str = "org.bluez.LEAdvertisement1"
@@ -73,12 +74,12 @@ class LEAdvertisement(ServiceInterface):
     def __init__(
         self,
         advertising_type: Type,
-        name: str,
+        local_name: str,
         index: int = 0,
         includes: Set[Include] = set(),
     ):
         self.index = index
-        self.path = f"/org/bluez/{name}/advertisement{index:03}"
+        self.path = f"/org/bluez/{local_name}/advertisement{index:03}"
 
         self._type: str = advertising_type.value
         self._service_uuids: List[str] = []
@@ -89,14 +90,14 @@ class LEAdvertisement(ServiceInterface):
         self._discoverable: bool = False  # EXPERIMENTAL
         self._discoverable_timeout: int = 0  # EXPERIMENTAL # uint16
         self._includes: List[str] = [i.value for i in includes]
-        self._local_name: str = name
+        self._local_name: str = local_name
         self._appearance: int = 0x00  # uint16
         self._duration: int = 2  # uint16
         self._timeout: int = 0  # uint16
         self._secondary_channel: str = SecondaryChannel.ONE.value  # EXPERIMENTAL
         self._min_interval: int = 100  # EXPERIMENTAL # uint32
         self._max_interval: int = 1000  # EXPERIMENTAL # uint32
-        self._tx_power: int = 20  # EXPERIMENTAL # int16
+        self._tx_power: int = 7  # EXPERIMENTAL # int16
 
         super().__init__(self.INTERFACE_NAME)
 
@@ -156,9 +157,12 @@ class LEAdvertisement(ServiceInterface):
     def Release(self):
         logger.debug("Released advertisement: %s", self)
 
-    @dbus_property()
+    @dbus_property(access=PropertyAccess.READ)
     @no_type_check
     def Type(self) -> "s":  # type: ignore # noqa: F821
+        """
+        Determines the type of advertising packet requested.
+        """
         return self._type
 
     @Type.setter
@@ -169,6 +173,9 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property()
     @no_type_check
     def ServiceUUIDs(self) -> "as":  # type: ignore # noqa: F821 F722
+        """
+        List of UUIDs to include in the "Service UUID" field of the Advertising Data.
+        """
         return self._service_uuids
 
     @ServiceUUIDs.setter
@@ -179,6 +186,10 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property()
     @no_type_check
     def ManufacturerData(self) -> "a{qv}":  # type: ignore # noqa: F821 F722
+        """
+        Manufacturer Data fields to include in the Advertising Data.
+        Keys are the Manufacturer ID to associate with the data.
+        """
         return self._manufacturer_data
 
     @ManufacturerData.setter
@@ -189,6 +200,9 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property()
     @no_type_check
     def SolicitUUIDs(self) -> "as":  # type: ignore # noqa: F821 F722
+        """
+        Array of UUIDs to include in "Service Solicitation" Advertisement Data.
+        """
         return self._solicit_uuids
 
     @SolicitUUIDs.setter
@@ -199,6 +213,9 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property()
     @no_type_check
     def ServiceData(self) -> "a{sv}":  # type: ignore # noqa: F821 F722
+        """
+        Service Data elements to include. The keys are the UUID to associate with the data.
+        """
         return self._service_data
 
     @ServiceData.setter
@@ -209,6 +226,10 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property(disabled=True)
     @no_type_check
     def Data(self) -> "a{yv}":  # type: ignore # noqa: F821 F722
+        """
+        Advertising Data to include.
+        Key is the advertising type and value is the data as byte array.
+        """
         return self._data
 
     @Data.setter
@@ -219,6 +240,10 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property(disabled=True)
     @no_type_check
     def Discoverable(self) -> "b":  # type: ignore # noqa: F821 F722
+        """
+        Advertise as general discoverable.
+        When present this will override adapter Discoverable property.
+        """
         return self._discoverable
 
     @Discoverable.setter
@@ -229,6 +254,10 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property(disabled=True)
     @no_type_check
     def DiscoverableTimeout(self) -> "q":  # type: ignore # noqa: F821 F722
+        """
+        The discoverable timeout in seconds.
+        A value of zero means that the timeout is disabled and it will stay in discoverable/limited mode forever.
+        """
         return self._discoverable_timeout
 
     @DiscoverableTimeout.setter
@@ -239,6 +268,9 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property()
     @no_type_check
     def Includes(self) -> "as":  # type: ignore # noqa: F821 F722
+        """
+        List of features to be included in the advertising packet.
+        """
         return self._includes
 
     @Includes.setter
@@ -249,6 +281,10 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property()
     @no_type_check
     def LocalName(self) -> "s":  # type: ignore # noqa: F821 N802
+        """
+        Local name to be used in the advertising report.
+        If the string is too big to fit into the packet it will be truncated.
+        """
         return self._local_name
 
     @LocalName.setter
@@ -259,6 +295,9 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property()
     @no_type_check
     def Appearance(self) -> "q":  # type: ignore # noqa: F821 N802
+        """
+        Appearance to be used in the advertising report.
+        """
         return self._appearance
 
     @Appearance.setter
@@ -269,6 +308,10 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property()
     @no_type_check
     def Duration(self) -> "q":  # type: ignore # noqa: F821 N802
+        """
+        Rotation duration of the advertisement in seconds.
+        If there are other applications advertising no duration is set the default is 2 seconds.
+        """
         return self._duration
 
     @Duration.setter
@@ -279,6 +322,10 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property()
     @no_type_check
     def Timeout(self) -> "q":  # type: ignore # noqa: F821 N802
+        """
+        Timeout of the advertisement in seconds.
+        This defines the lifetime of the advertisement.
+        """
         return self._timeout
 
     @Timeout.setter
@@ -289,6 +336,10 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property(disabled=True)
     @no_type_check
     def SecondaryChannel(self) -> "s":  # type: ignore # noqa: F821 N802
+        """
+        Secondary channel to be used.
+        Primary channel is always set to "1M" except when "Coded" is set.
+        """
         return self._secondary_channel
 
     @SecondaryChannel.setter
@@ -299,6 +350,12 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property(disabled=True)
     @no_type_check
     def MinInterval(self) -> "u":  # type: ignore # noqa: F821 N802
+        """
+        Minimum advertising interval to be used by the advertising set, in milliseconds.
+        Acceptable values are in the range [20ms, 10,485s].
+        If the provided MinInterval is larger than the provided MaxInterval,
+        the registration will return failure.
+        """
         return self._min_interval
 
     @MinInterval.setter
@@ -309,6 +366,12 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property(disabled=True)
     @no_type_check
     def MaxInterval(self) -> "u":  # type: ignore # noqa: F821 N802
+        """
+        Maximum advertising interval to be used by the advertising set, in milliseconds.
+        Acceptable values are in the range [20ms, 10,485s].
+        If the provided MinInterval is larger than the provided MaxInterval,
+        the registration will return failure.
+        """
         return self._max_interval
 
     @MaxInterval.setter
@@ -319,6 +382,11 @@ class LEAdvertisement(ServiceInterface):
     @dbus_property(disabled=True)
     @no_type_check
     def TxPower(self) -> "n":  # type: ignore # noqa: F821 N802
+        """
+        Requested transmission power of this advertising set.
+        The provided value is used only if the "CanSetTxPower" feature is enabled on the org.bluez.LEAdvertisingManager(5).
+        The provided value must be in range [-127 to +20], where units are in dBm.
+        """
         return self._tx_power
 
     @TxPower.setter
@@ -332,18 +400,18 @@ class BroadcastAdvertisement(LEAdvertisement):
     Implementation of a broadcast advertisement.
 
     This sets the advertising tyoe to "broadcast" and toggles
-    available proeprties appropriately.
+    available properties appropriately.
     """
 
     def __init__(
         self,
-        name: str,
+        local_name: str,
         index: int = 0,
-        on_release: Callable[[int], None] = lambda i: None,
+        on_release: Callable[[str], None] = lambda path: None,
     ):
         super().__init__(
             Type.BROADCAST,
-            name,
+            local_name,
             index,
             # set([Include.LOCAL_NAME]),
         )
@@ -367,14 +435,14 @@ class BroadcastAdvertisement(LEAdvertisement):
     @method()
     def Release(self):
         super().Release()
-        self.on_release(self.index)
+        self.on_release(self.path)
 
 
 class LEAdvertisingManager:
     """
     Client implementation of the org.bluez.LEAdvertisementManager1 D-Bus interface.
 
-    https://github.com/bluez/bluez/blob/5.64/doc/advertising-api.txt
+    https://github.com/bluez/bluez/blob/5.75/doc/org.bluez.LEAdvertisingManager.rst
     """
 
     INTERFACE_NAME: str = "org.bluez.LEAdvertisingManager1"
@@ -391,8 +459,15 @@ class LEAdvertisingManager:
     async def register_advertisement(self, adv: LEAdvertisement, options: dict = {}):
         return await self.adv_manager.call_register_advertisement(adv.path, options)
 
-    async def unregister_advertisement(self, adv: LEAdvertisement):
-        return await self.adv_manager.call_unregister_advertisement(adv.path)
+    @overload
+    async def unregister_advertisement(self, adv: LEAdvertisement): ...
+    @overload
+    async def unregister_advertisement(self, adv: str): ...
+    async def unregister_advertisement(self, adv):
+        if isinstance(adv, str):
+            return await self.adv_manager.call_unregister_advertisement(adv)
+        else:
+            return await self.adv_manager.call_unregister_advertisement(adv.path)
 
     async def active_instances(self) -> int:
         """Number of active advertising instances."""
