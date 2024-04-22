@@ -69,6 +69,10 @@ class PybricksBroadcast(BroadcastAdvertisement):
     def message(self, value: Tuple[Union[bool, int, float, str, bytes]]):
         message = encode_message(self.channel, *value)
         self._manufacturer_data[self.LEGO_CID] = Variant("ay", message)
+        # Notify BlueZ of the changed manufacturer data so the advertisement is updated
+        self.emit_properties_changed(
+            changed_properties={"ManufacturerData": self._manufacturer_data}
+        )
 
 
 class BlueZBroadcaster:
