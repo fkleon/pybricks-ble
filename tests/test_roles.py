@@ -84,7 +84,7 @@ class TestBlueZBroadcaster:
         # THEN it is not in the advertisements list
         assert adv.path not in broadcaster.advertisements
 
-        # TODO: test unexported
+        # TODO: test that it's unexported from the bus
 
     async def test_broadcast_twice(self, broadcaster):
         # GIVEN a broadcast

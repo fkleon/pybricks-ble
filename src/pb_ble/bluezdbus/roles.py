@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import re
+from contextlib import AbstractAsyncContextManager
 from enum import Enum
 from math import pi
 from typing import (
@@ -75,7 +76,7 @@ class PybricksBroadcast(BroadcastAdvertisement):
         )
 
 
-class BlueZBroadcaster:
+class BlueZBroadcaster(AbstractAsyncContextManager):
     """
     A BLE broadcaster backed by BlueZ.
     """
@@ -88,14 +89,35 @@ class BlueZBroadcaster:
         self.path_namespace = f"/org/bluez/{self.name}"
         self.advertisements: dict[str, BroadcastAdvertisement] = {}
 
+    async def stop(self):
+        for path in list(self.advertisements):
+            try:
+                await self.adv_manager.unregister_advertisement(path)
+            except DBusError:
+                # Advertisement does not exist
+                pass
+            finally:
+                self.bus.unexport(path)
+                del self.advertisements[path]
+
+    async def __aexit__(self, exc_type, exc, tb):
+        self.stop()
+
     async def broadcast(self, adv: BroadcastAdvertisement):
         # TODO construct advertisement in here to ensure local_name
         assert adv._local_name == self.name, f"{adv.name} != {self.name}"
 
-        # cleanup on release
+        # cleanup on release of advertisement
         on_release = adv.on_release
-        # TODO: unexport on release
-        adv.on_release = lambda path: self.advertisements.pop(path) and on_release(path)
+
+        def release_advertisement(path):
+            try:
+                self.bus.unexport(path)
+                del self.advertisements[path]
+            finally:
+                on_release(path)
+
+        adv.on_release = release_advertisement
 
         # TODO: error handling
         try:
@@ -114,18 +136,6 @@ class BlueZBroadcaster:
             raise
 
         self.advertisements[adv.path] = adv
-
-    async def stop(self):
-        for path in self.advertisements:
-            try:
-                await self.adv_manager.unregister_advertisement(path)
-            except DBusError:
-                # Advertisement does not exist
-                pass
-            finally:
-                self.bus.unexport(path)
-
-        self.advertisements = {}
 
 
 class BlueZObserver:
