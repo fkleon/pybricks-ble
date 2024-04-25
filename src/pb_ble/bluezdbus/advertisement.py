@@ -78,6 +78,9 @@ class LEAdvertisement(ServiceInterface):
         index: int = 0,
         includes: Set[Include] = set(),
     ):
+        if index < 0:
+            raise ValueError("index must be positive")
+
         self.index = index
         self.path = f"/org/bluez/{local_name}/advertisement{index:03}"
 
@@ -399,7 +402,7 @@ class BroadcastAdvertisement(LEAdvertisement):
     """
     Implementation of a broadcast advertisement.
 
-    This sets the advertising tyoe to "broadcast" and toggles
+    This sets the advertising type to "broadcast" and toggles
     available properties appropriately.
     """
 

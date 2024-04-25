@@ -6,7 +6,7 @@ from bluetooth_adapters import get_dbus_managed_objects
 from dbus_fast.errors import DBusError, InvalidObjectPathError
 
 from pb_ble.bluezdbus import LEAdvertisement, LEAdvertisingManager
-from pb_ble.bluezdbus.advertisement import Type
+from pb_ble.bluezdbus.advertisement import Include, Type
 
 
 @pytest.fixture
@@ -22,6 +22,37 @@ async def adv(adv_manager):
         await adv_manager.unregister_advertisement(adv)
     except DBusError:
         pass
+
+
+class TestLEAdvertising:
+    @pytest.mark.parametrize(
+        "name,index,path",
+        [
+            ("test", 0, "/org/bluez/test/advertisement000"),
+            ("test", 100, "/org/bluez/test/advertisement100"),
+            ("test", 1000, "/org/bluez/test/advertisement1000"),
+        ],
+    )
+    def test_advertisement_path(self, name, index, path):
+        adv = LEAdvertisement(
+            advertising_type=Type.BROADCAST, local_name=name, index=index
+        )
+        assert adv.path == path
+
+    def test_invalid_index(self):
+        with pytest.raises(ValueError):
+            LEAdvertisement(
+                advertising_type=Type.BROADCAST, local_name="anything", index=-1
+            )
+
+    def test_includes(self):
+        adv = LEAdvertisement(
+            advertising_type=Type.BROADCAST,
+            local_name="test",
+            includes={Include.TX_POWER, Include.LOCAL_NAME},
+        )
+
+        assert set(adv._includes) == {"tx-power", "local-name"}
 
 
 class TestLEAdvertisingManager:
