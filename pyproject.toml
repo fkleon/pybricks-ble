@@ -18,16 +18,15 @@ classifiers = [
 ]
 
 dependencies = [
-    "bleak >= 0.21.1",
+    "bleak >= 0.22.0",
     "bluetooth-adapters ~= 0.16",
     "dbus-fast ~= 2.15",
-    #"pybricksdev >= 1.0.0a46", # FIXME: Causes dependency conflict, see README
-    "semver <3.0.0,>=2.13.0", # FIXME: Required for pybricksdev == 1.0.0a46
+    "pybricksdev >= 1.0.0a48",
 ]
 
 [project.optional-dependencies]
 debug = ["bluetooth-data-tools ~= 1.15"]
-dev = ["pybricks-ble[debug]", "ruff ~= 0.3.7", "pytest ~= 7.4", "pytest-asyncio ~= 0.21.1"]
+dev = ["pybricks-ble[debug]", "ruff ~= 0.4.7", "pytest ~= 8.2", "pytest-asyncio ~= 0.21.1"]
 
 [project.urls]
 Repository = "https://github.com/fkleon/pybricks-ble"

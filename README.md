@@ -12,13 +12,8 @@ Using the CLI tools requires Python 3.10 on Linux with BlueZ.
 
 ## Development
 
-This library requires `bleak >= 0.21.1` which conflicts with the latest `pybricksdev == 1.0.0a46` release.
-
-To work around this, `pybricksdev` is not listed in the project requirements and must be manually installed:
-
 ```
 pip install -e '.[dev]'
-pip install pybricksdev==1.0.0a46 --no-deps
 ```
 
 ## Tools
