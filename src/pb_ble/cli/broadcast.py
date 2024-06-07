@@ -78,11 +78,14 @@ def main():
 
     channel, *data = args.data
 
-    asyncio.run(
-        broadcast(
-            device_name=args.name, timeout=args.timeout, channel=channel, data=data
+    try:
+        asyncio.run(
+            broadcast(
+                device_name=args.name, timeout=args.timeout, channel=channel, data=data
+            )
         )
-    )
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":

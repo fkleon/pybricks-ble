@@ -48,12 +48,15 @@ def main():
     if args.debug:
         logging.getLogger("pb_ble").setLevel(logging.DEBUG)
 
-    asyncio.run(
-        observe(
-            channels=args.channels,
-            rssi_threshold=args.rssi,
+    try:
+        asyncio.run(
+            observe(
+                channels=args.channels,
+                rssi_threshold=args.rssi,
+            )
         )
-    )
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":
