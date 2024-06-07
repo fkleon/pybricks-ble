@@ -29,6 +29,7 @@ from dbus_fast.proxy_object import BaseProxyInterface, BaseProxyObject
 from dbus_fast.service import ServiceInterface, _Property, dbus_property, method
 from dbus_fast.signature import Variant
 
+from ..constants import LEGO_CID, PybricksData, PybricksMessage
 from ..messages import decode_message, encode_message, pack_pnp_id
 
 logger = logging.getLogger(__name__)
@@ -468,10 +469,7 @@ class PybricksBroadcast(BroadcastAdvertisement):
     The data to broadcast is set via the message property.
     """
 
-    PybricksData = Tuple[Union[bool, int, float, str, bytes]]
-    PybricksMessage = Tuple[int, Optional[PybricksData]]
-
-    LEGO_CID = 0x0397
+    LEGO_CID = LEGO_CID
     """LEGO System A/S company identifier."""
 
     def __init__(

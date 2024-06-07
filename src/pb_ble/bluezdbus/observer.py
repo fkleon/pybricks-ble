@@ -16,8 +16,8 @@ from bleak.assigned_numbers import AdvertisementDataType
 from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
 from cachetools import TTLCache
-from pybricksdev.ble.lwp3 import LEGO_CID
 
+from ..constants import LEGO_CID
 from ..messages import decode_message
 
 log = logging.getLogger(name=__name__)

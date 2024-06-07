@@ -1,9 +1,8 @@
 import unittest
 
-from pybricksdev.ble.lwp3 import LEGO_CID
 from pybricksdev.ble.pybricks import unpack_pnp_id
 
-from pb_ble import decode_message, encode_message, pack_pnp_id
+from pb_ble import LEGO_CID, decode_message, encode_message, pack_pnp_id
 
 
 class TestPybricksBleDecodeMessage(unittest.TestCase):

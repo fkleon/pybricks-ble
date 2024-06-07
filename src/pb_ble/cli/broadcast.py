@@ -11,6 +11,7 @@ from typing import Optional
 from dbus_fast import BusType
 from dbus_fast.aio import MessageBus, ProxyObject
 
+from pb_ble import PybricksData
 from pb_ble.bluezdbus import BlueZBroadcaster, PybricksBroadcast, get_adapter
 
 parser = argparse.ArgumentParser(
@@ -52,7 +53,7 @@ async def broadcast(
     device_name: str,
     timeout: int,
     channel: int,
-    data: Optional[PybricksBroadcast.PybricksData],
+    data: Optional[PybricksData],
 ):
     stop_event = asyncio.Event()
 

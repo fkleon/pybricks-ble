@@ -22,12 +22,19 @@ dependencies = [
     "bluetooth-adapters ~= 0.16",
     "cachetools ~= 5.3",
     "dbus-fast ~= 2.15",
-    "pybricksdev >= 1.0.0a48",
 ]
 
 [project.optional-dependencies]
-debug = ["bluetooth-data-tools ~= 1.15"]
-dev = ["pybricks-ble[debug]", "ruff ~= 0.4.7", "pytest ~= 8.2", "pytest-asyncio ~= 0.21.1"]
+debug = [
+    "bluetooth-data-tools ~= 1.15",
+]
+dev = [
+    "pybricks-ble[debug]",
+    "ruff ~= 0.4.7",
+    "pybricksdev >= 1.0.0a48",
+    "pytest ~= 8.2",
+    "pytest-asyncio ~= 0.21.1",
+]
 
 [project.urls]
 Repository = "https://github.com/fkleon/pybricks-ble"
