@@ -43,25 +43,22 @@ options:
 
 ### BLE observer
 
-Receives Pybricks BLE broadcasts via `active` or `passive` BLE scanning.
+Receives Pybricks BLE broadcasts via `passive` BLE scanning.
 
-Uses `bleak` for scanning. The recommended scanning mode is `passive` which requires BlueZ >= 5.56 with experimental features enabled.
+Uses `bleak` for scanning and requires BlueZ >= 5.56 with experimental features enabled.
 
 Usage:
 
 ```
-usage: pb_observe [-h] [--name NAME] [--rssi [-120 to 0]] [--mode {active,passive}] [--debug] [N [0 to 255] ...]
+usage: pb_observe [-h] [--rssi [-120 to 0]] [--debug] [N [0 to 255] ...]
 
 Observe Pybricks BLE broadcasts
 
 positional arguments:
-  N [0 to 255]          Pybricks channels to observe, or all channels if not given. (default: None)
+  N [0 to 255]        Pybricks channels to observe, or all channels if not given. (default: None)
 
 options:
-  -h, --help            show this help message and exit
-  --name NAME           Bluetooth device name or Bluetooth address for discovery filter (active scan only) (default: Pybricks Hub)
-  --rssi [-120 to 0]    RSSI threshold for discovery filter (active scan only) (default: None)
-  --mode {active,passive}
-                        BLE scanning mode (default: passive)
-  --debug               Enable debug logging (default: False)
+  -h, --help          show this help message and exit
+  --rssi [-120 to 0]  RSSI threshold (default: None)
+  --debug             Enable debug logging (default: False)
 ```
