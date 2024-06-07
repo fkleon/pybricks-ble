@@ -6,7 +6,7 @@ import argparse
 import asyncio
 import logging
 
-from pb_ble.discover import run
+from pb_ble.bluezdbus import BlueZPybricksObserver
 
 parser = argparse.ArgumentParser(
     prog="pb_observe",
@@ -21,25 +21,12 @@ parser.add_argument(
     help="Pybricks channels to observe, or all channels if not given.",
 )
 parser.add_argument(
-    "--name",
-    required=False,
-    default="Pybricks Hub",
-    help="Bluetooth device name or Bluetooth address for discovery filter (active scan only)",
-)
-parser.add_argument(
     "--rssi",
     required=False,
     type=int,
     choices=range(-120, 1),
     metavar="[-120 to 0]",
-    help="RSSI threshold for discovery filter (active scan only)",
-)
-parser.add_argument(
-    "--mode",
-    required=False,
-    choices=["active", "passive"],
-    default="passive",
-    help="BLE scanning mode",
+    help="RSSI threshold",
 )
 parser.add_argument(
     "--debug",
@@ -49,6 +36,12 @@ parser.add_argument(
 )
 
 
+async def observe(channels, rssi_threshold):
+    stop_event = asyncio.Event()
+    async with BlueZPybricksObserver(channels, rssi_threshold):
+        await stop_event.wait()
+
+
 def main():
     args = parser.parse_args()
 
@@ -56,10 +49,8 @@ def main():
         logging.getLogger("pb_ble").setLevel(logging.DEBUG)
 
     asyncio.run(
-        run(
+        observe(
             channels=args.channels,
-            device_name=args.name,
-            scanning_mode=args.mode,
             rssi_threshold=args.rssi,
         )
     )
