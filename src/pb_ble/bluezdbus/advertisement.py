@@ -468,6 +468,9 @@ class PybricksBroadcast(BroadcastAdvertisement):
     The data to broadcast is set via the message property.
     """
 
+    PybricksData = Tuple[Union[bool, int, float, str, bytes]]
+    PybricksMessage = Tuple[int, Optional[PybricksData]]
+
     LEGO_CID = 0x0397
     """LEGO System A/S company identifier."""
 
@@ -475,28 +478,36 @@ class PybricksBroadcast(BroadcastAdvertisement):
         self,
         local_name: str,
         channel: int = 0,
+        data: Optional[PybricksData] = None,
         on_release: Callable[[str], None] = lambda path: None,
     ):
         super().__init__(local_name, channel, on_release)
+        if data:
+            self.message = data
 
     @property
     def channel(self) -> int:
         return self.index
 
     @property
-    def message(self) -> Optional[Tuple[Union[bool, int, float, str, bytes]]]:
+    def message(self) -> Optional[PybricksData]:
         if self.LEGO_CID in self._manufacturer_data:
-            channel, value = decode_message(self._manufacturer_data[self.LEGO_CID])
+            channel, value = decode_message(
+                self._manufacturer_data[self.LEGO_CID].value
+            )
             return value
 
     @message.setter
-    def message(self, value: Tuple[Union[bool, int, float, str, bytes]]):
+    def message(self, value: PybricksData):
         message = encode_message(self.channel, *value)
         self._manufacturer_data[self.LEGO_CID] = Variant("ay", message)
         # Notify BlueZ of the changed manufacturer data so the advertisement is updated
         self.emit_properties_changed(
             changed_properties={"ManufacturerData": self._manufacturer_data}
         )
+
+    def __str__(self):
+        return f"PybricksBroadcast(channel={self.channel}, data={self.message}, timeout={self._timeout})"
 
 
 class LEAdvertisingManager:
