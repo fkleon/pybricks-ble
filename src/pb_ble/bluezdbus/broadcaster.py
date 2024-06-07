@@ -3,6 +3,7 @@ This module contains a generic implementation of the BLE "Broadcaster" role.
 """
 
 import asyncio
+import logging
 from contextlib import AbstractAsyncContextManager
 from typing import (
     Optional,
@@ -16,6 +17,8 @@ from .advertisement import (
     BroadcastAdvertisement,
     LEAdvertisingManager,
 )
+
+log = logging.getLogger(name=__name__)
 
 
 class BlueZBroadcaster(AbstractAsyncContextManager):
@@ -73,6 +76,8 @@ class BlueZBroadcaster(AbstractAsyncContextManager):
                 on_release(path)
 
         adv.on_release = release_advertisement
+
+        log.info("Broadcasting: %s", adv)
 
         # TODO: error handling
         try:
