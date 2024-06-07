@@ -6,29 +6,12 @@ import argparse
 import asyncio
 import json
 import logging
+from typing import Optional
 
-from pb_ble.advertise import run
+from dbus_fast import BusType
+from dbus_fast.aio import MessageBus, ProxyObject
 
-# Requirements
-# - asyncio
-# - use BlueZ DBus API
-# - manage multiple broadcasts
-# - allow timeout/single send
-# - allow custom local name
-# - allow minimal advertisement
-
-# DBus proxies
-# - Adapter
-# - AdvertisingManager
-
-# DBus services
-# - Advertisement
-# - Application? Service? Characteristics?
-
-# "Beacon" / "Broadcaster"
-# - Adapter
-# - Advertisement
-# - AdvertisingManager
+from pb_ble.bluezdbus import BlueZBroadcaster, PybricksBroadcast, get_adapter
 
 parser = argparse.ArgumentParser(
     prog="pb_broadcast",
@@ -65,14 +48,39 @@ parser.add_argument(
 )
 
 
+async def broadcast(
+    device_name: str,
+    timeout: int,
+    channel: int,
+    data: Optional[PybricksBroadcast.PybricksData],
+):
+    stop_event = asyncio.Event()
+
+    bus: MessageBus = await MessageBus(bus_type=BusType.SYSTEM).connect()
+    adapter: ProxyObject = await get_adapter(bus)
+
+    adv = PybricksBroadcast(
+        device_name, channel, data, on_release=lambda p: stop_event.set()
+    )
+    adv._timeout = timeout
+
+    async with BlueZBroadcaster(bus, adapter, device_name) as broadcaster:
+        await broadcaster.broadcast(adv)
+        await stop_event.wait()
+
+
 def main():
     args = parser.parse_args()
 
     if args.debug:
         logging.getLogger("pb_ble").setLevel(logging.DEBUG)
 
+    channel, *data = args.data
+
     asyncio.run(
-        run(device_name=args.name, timeout=args.timeout, broadcasts=[tuple(args.data)])
+        broadcast(
+            device_name=args.name, timeout=args.timeout, channel=channel, data=data
+        )
     )
 
 
