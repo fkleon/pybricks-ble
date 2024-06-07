@@ -4,7 +4,7 @@ import pytest
 import pytest_asyncio
 from bluetooth_adapters import get_dbus_managed_objects
 
-from pb_ble.bluezdbus import BlueZBroadcaster, BlueZObserver, BroadcastAdvertisement
+from pb_ble.bluezdbus import BlueZBroadcaster, BroadcastAdvertisement
 
 lock = Lock()
 
@@ -95,9 +95,3 @@ class TestBlueZBroadcaster:
         # THEN an error is raised the second time
         with pytest.raises(ValueError):
             await broadcaster.broadcast(adv)
-
-
-class TestBlueZObserver:
-    def test_create_observer(self, message_bus):
-        observer = BlueZObserver(bus=message_bus, adv_monitor=None)
-        assert observer is not None

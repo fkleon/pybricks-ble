@@ -1,6 +1,6 @@
 import logging
 from pprint import pformat
-from typing import Optional, Tuple
+from typing import Tuple
 
 from bleak.backends.bluezdbus import defs
 from bluetooth_adapters import (

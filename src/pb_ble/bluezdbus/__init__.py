@@ -4,5 +4,10 @@ using the BueZ DBus API.
 """
 
 from .adapters import get_adapter, get_adapter_details
-from .advertisement import BroadcastAdvertisement, LEAdvertisement, LEAdvertisingManager
-from .roles import BlueZBroadcaster, BlueZObserver, PybricksBroadcast
+from .advertisement import (
+    BroadcastAdvertisement,
+    LEAdvertisement,
+    LEAdvertisingManager,
+    PybricksBroadcast,
+)
+from .broadcaster import BlueZBroadcaster

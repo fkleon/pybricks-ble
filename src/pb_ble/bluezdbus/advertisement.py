@@ -1,15 +1,35 @@
 """
-BLE advertisement model definitions for dbus-fast.
+Advertisement API
+---------------------
+
+This module contains types associated with the BlueZ D-Bus advertisement api:
+
+- https://github.com/bluez/bluez/blob/5.75/doc/org.bluez.LEAdvertisement.rst
+- https://github.com/bluez/bluez/blob/5.75/doc/org.bluez.LEAdvertisingManager.rst
 """
 
 import logging
 from enum import Enum
-from typing import Any, Callable, Dict, List, Set, Union, no_type_check, overload
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+    no_type_check,
+    overload,
+)
 
 from dbus_fast.aio import MessageBus, ProxyInterface, ProxyObject
 from dbus_fast.constants import PropertyAccess
 from dbus_fast.proxy_object import BaseProxyInterface, BaseProxyObject
 from dbus_fast.service import ServiceInterface, _Property, dbus_property, method
+from dbus_fast.signature import Variant
+
+from ..messages import decode_message, encode_message, pack_pnp_id
 
 logger = logging.getLogger(__name__)
 
@@ -439,6 +459,44 @@ class BroadcastAdvertisement(LEAdvertisement):
     def Release(self):
         super().Release()
         self.on_release(self.path)
+
+
+class PybricksBroadcast(BroadcastAdvertisement):
+    """
+    Implementation of a Pybricks broadcast advertisement.
+
+    The data to broadcast is set via the message property.
+    """
+
+    LEGO_CID = 0x0397
+    """LEGO System A/S company identifier."""
+
+    def __init__(
+        self,
+        local_name: str,
+        channel: int = 0,
+        on_release: Callable[[str], None] = lambda path: None,
+    ):
+        super().__init__(local_name, channel, on_release)
+
+    @property
+    def channel(self) -> int:
+        return self.index
+
+    @property
+    def message(self) -> Optional[Tuple[Union[bool, int, float, str, bytes]]]:
+        if self.LEGO_CID in self._manufacturer_data:
+            channel, value = decode_message(self._manufacturer_data[self.LEGO_CID])
+            return value
+
+    @message.setter
+    def message(self, value: Tuple[Union[bool, int, float, str, bytes]]):
+        message = encode_message(self.channel, *value)
+        self._manufacturer_data[self.LEGO_CID] = Variant("ay", message)
+        # Notify BlueZ of the changed manufacturer data so the advertisement is updated
+        self.emit_properties_changed(
+            changed_properties={"ManufacturerData": self._manufacturer_data}
+        )
 
 
 class LEAdvertisingManager:
