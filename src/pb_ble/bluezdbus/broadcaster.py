@@ -97,7 +97,7 @@ class BlueZBroadcaster(AbstractAsyncContextManager):
 
         self.advertisements[adv.path] = adv
 
-    def is_broadcasting(self, adv: Optional[BroadcastAdvertisement]) -> bool:
+    def is_broadcasting(self, adv: Optional[BroadcastAdvertisement] = None) -> bool:
         if adv is not None:
             return adv.path in self.advertisements
         else:
