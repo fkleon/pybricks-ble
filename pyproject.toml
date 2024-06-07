@@ -20,6 +20,7 @@ classifiers = [
 dependencies = [
     "bleak >= 0.22.0",
     "bluetooth-adapters ~= 0.16",
+    "cachetools ~= 5.3",
     "dbus-fast ~= 2.15",
     "pybricksdev >= 1.0.0a48",
 ]

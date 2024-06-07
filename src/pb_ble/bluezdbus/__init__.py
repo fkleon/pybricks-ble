@@ -11,3 +11,4 @@ from .advertisement import (
     PybricksBroadcast,
 )
 from .broadcaster import BlueZBroadcaster
+from .observer import BlueZPybricksObserver
