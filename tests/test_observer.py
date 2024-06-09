@@ -21,3 +21,7 @@ class TestBlueZObserver:
     def test_create_observer(self, message_bus):
         observer = BlueZPybricksObserver([0])
         assert observer is not None
+
+    def test_observe(self, observer):
+        data = observer.observe(0)
+        assert data is None

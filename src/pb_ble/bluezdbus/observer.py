@@ -16,7 +16,7 @@ from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
 from cachetools import TTLCache
 
-from ..constants import LEGO_CID
+from ..constants import LEGO_CID, PybricksBroadcastData
 from ..messages import decode_message
 
 log = logging.getLogger(name=__name__)
@@ -79,8 +79,8 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
         log.info("Pybricks broadcast on channel %i: %s", channel, data)
         self.advertisements[channel] = data
 
-    def observe(self, channel: int):
-        return self.advertisements[channel]
+    def observe(self, channel: int) -> PybricksBroadcastData | None:
+        return self.advertisements.get(channel, None)
 
     async def __aenter__(self):
         log.info("Observing on channels %s...", self.channels or "ALL")
