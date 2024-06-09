@@ -13,9 +13,8 @@ from pb_ble.bluezdbus import (
 
 @pytest_asyncio.fixture()
 async def observer():
-    observer = BlueZPybricksObserver()
-    yield observer
-    await observer.stop()
+    async with BlueZPybricksObserver() as observer:
+        yield observer
 
 
 class TestBlueZObserver:

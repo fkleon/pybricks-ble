@@ -50,7 +50,7 @@ OBSERVED_DATA_MAX_SIZE = 31 - 5
 
 def _decode_next_value(
     idx: int, data: bytes
-) -> tuple[int, (None | PybricksBroadcastValue)]:
+) -> tuple[int, None | PybricksBroadcastValue]:
     """
     Decodes the next value in data, starting at idx.
 
@@ -118,7 +118,7 @@ def decode_message(
     """
 
     # idx 0 is the channel
-    channel = unpack_from("<B", data)[0]  # uint8
+    channel: int = unpack_from("<B", data)[0]  # uint8
     # idx 1 is the message start
     idx = 1
     decoded_data = []
@@ -131,7 +131,10 @@ def decode_message(
         else:
             decoded_data.append(val)
 
-    return channel, decoded_data[0] if single_object else tuple(decoded_data)
+    if single_object:
+        return PybricksBroadcast(channel, decoded_data[0])
+    else:
+        return PybricksBroadcast(channel, tuple(decoded_data))  # type: ignore # https://github.com/python/mypy/issues/7509
 
 
 def _encode_value(

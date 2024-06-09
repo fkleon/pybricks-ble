@@ -1,6 +1,6 @@
 import unittest
 
-from pybricksdev.ble.pybricks import unpack_pnp_id
+from pybricksdev.ble.pybricks import unpack_pnp_id  # type: ignore
 
 from pb_ble import LEGO_CID, decode_message, encode_message, pack_pnp_id
 

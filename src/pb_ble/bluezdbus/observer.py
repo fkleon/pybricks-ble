@@ -31,13 +31,17 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
 
     def __init__(
         self,
-        channels: Sequence[int] = None,
+        channels: Sequence[int] | None = None,
         rssi_threshold: int | None = None,
         message_ttl: int = 60,
     ):
         self.channels = channels or []
         self.rssi_threshold = rssi_threshold
-        self.advertisements = TTLCache(maxsize=len(channels), ttl=message_ttl)
+        self.advertisements: TTLCache = TTLCache(
+            maxsize=len(self.channels), ttl=message_ttl
+        )
+
+        or_patterns: list[OrPattern | tuple[int, AdvertisementDataType, bytes]]
 
         if self.channels:
             or_patterns = [

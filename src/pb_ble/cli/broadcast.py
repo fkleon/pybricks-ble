@@ -84,7 +84,10 @@ def main():
     try:
         asyncio.run(
             broadcast(
-                device_name=args.name, timeout=args.timeout, channel=channel, data=data
+                device_name=args.name,
+                timeout=args.timeout,
+                channel=channel,
+                data=tuple(data),
             )
         )
     except KeyboardInterrupt:

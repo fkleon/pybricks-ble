@@ -137,7 +137,7 @@ class LEAdvertisement(ServiceInterface):
             ValueError: If an unknown property was passed.
         """
         for prop_name in prop_names:
-            prop: _Property = next(
+            prop: _Property | None = next(
                 (
                     p
                     for p in ServiceInterface._get_properties(self)
@@ -163,7 +163,7 @@ class LEAdvertisement(ServiceInterface):
             ValueError: If an unknown property was passed.
         """
         for prop_name in prop_names:
-            prop: _Property = next(
+            prop: _Property | None = next(
                 (
                     p
                     for p in ServiceInterface._get_properties(self)
@@ -188,7 +188,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._type
 
-    @Type.setter
+    @Type.setter  # type: ignore
     @no_type_check
     def Type(self, type: "s"):  # type: ignore  # noqa: F821
         self._type = type
@@ -201,7 +201,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._service_uuids
 
-    @ServiceUUIDs.setter
+    @ServiceUUIDs.setter  # type: ignore
     @no_type_check
     def ServiceUUIDs(self, service_uuids: "as"):  # type: ignore # noqa: F821 F722
         self._service_uuids = service_uuids
@@ -215,7 +215,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._manufacturer_data
 
-    @ManufacturerData.setter
+    @ManufacturerData.setter  # type: ignore
     @no_type_check
     def ManufacturerData(self, data: "a{qv}"):  # type: ignore # noqa: F821 F722
         self._manufacturer_data = data
@@ -228,7 +228,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._solicit_uuids
 
-    @SolicitUUIDs.setter
+    @SolicitUUIDs.setter  # type: ignore
     @no_type_check
     def SolicitUUIDs(self, uuids: "as"):  # type: ignore # noqa: F821 F722
         self._solicit_uuids = uuids
@@ -241,7 +241,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._service_data
 
-    @ServiceData.setter
+    @ServiceData.setter  # type: ignore
     @no_type_check
     def ServiceData(self, data: "a{sv}"):  # type: ignore # noqa: F821 F722
         self._service_data = data
@@ -255,7 +255,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._data
 
-    @Data.setter
+    @Data.setter  # type: ignore
     @no_type_check
     def Data(self, data: "a{yv}"):  # type: ignore # noqa: F821 F722
         self._data = data
@@ -269,7 +269,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._discoverable
 
-    @Discoverable.setter
+    @Discoverable.setter  # type: ignore
     @no_type_check
     def Discoverable(self, discoverable: "b"):  # type: ignore # noqa: F821 F722
         self._discoverable = discoverable
@@ -283,7 +283,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._discoverable_timeout
 
-    @DiscoverableTimeout.setter
+    @DiscoverableTimeout.setter  # type: ignore
     @no_type_check
     def DiscoverableTimeout(self, timeout: "q"):  # type: ignore # noqa: F821 F722
         self._discoverable_timeout = timeout
@@ -296,7 +296,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._includes
 
-    @Includes.setter
+    @Includes.setter  # type: ignore
     @no_type_check
     def Includes(self, includes: "as"):  # type: ignore # noqa: F821 F722
         self._includes = includes
@@ -310,7 +310,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._local_name
 
-    @LocalName.setter
+    @LocalName.setter  # type: ignore
     @no_type_check
     def LocalName(self, name: "s"):  # type: ignore # noqa: F821 N802
         self._local_name = name
@@ -323,7 +323,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._appearance
 
-    @Appearance.setter
+    @Appearance.setter  # type: ignore
     @no_type_check
     def Appearance(self, appearance: "q"):  # type: ignore # noqa: F821 N802
         self._appearance = appearance
@@ -337,7 +337,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._duration
 
-    @Duration.setter
+    @Duration.setter  # type: ignore
     @no_type_check
     def Duration(self, seconds: "q"):  # type: ignore # noqa: F821 N802
         self._duration = seconds
@@ -351,7 +351,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._timeout
 
-    @Timeout.setter
+    @Timeout.setter  # type: ignore
     @no_type_check
     def Timeout(self, seconds: "q"):  # type: ignore # noqa: F821 N802
         self._timeout = seconds
@@ -365,7 +365,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._secondary_channel
 
-    @SecondaryChannel.setter
+    @SecondaryChannel.setter  # type: ignore
     @no_type_check
     def SecondaryChannel(self, channel: "q"):  # type: ignore # noqa: F821 N802
         self._secondary_channel = channel
@@ -381,7 +381,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._min_interval
 
-    @MinInterval.setter
+    @MinInterval.setter  # type: ignore
     @no_type_check
     def MinInterval(self, milliseconds: "u"):  # type: ignore # noqa: F821 N802
         self._min_interval = milliseconds
@@ -397,7 +397,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._max_interval
 
-    @MaxInterval.setter
+    @MaxInterval.setter  # type: ignore
     @no_type_check
     def MaxInterval(self, milliseconds: "u"):  # type: ignore # noqa: F821 N802
         self._max_interval = milliseconds
@@ -412,7 +412,7 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._tx_power
 
-    @TxPower.setter
+    @TxPower.setter  # type: ignore
     @no_type_check
     def TxPower(self, dbm: "n"):  # type: ignore # noqa: F821 N802
         self._tx_power = dbm
@@ -487,24 +487,27 @@ class PybricksBroadcastAdvertisement(BroadcastAdvertisement):
         return self.index
 
     @property
-    def message(self) -> PybricksBroadcastData:
+    def message(self) -> PybricksBroadcastData | None:
         if self.LEGO_CID in self._manufacturer_data:
             channel, value = decode_message(
-                self._manufacturer_data[self.LEGO_CID].value
+                self._manufacturer_data[self.LEGO_CID].value  # type: ignore
             )
             return value
+        else:
+            return None
 
     @message.setter
     def message(self, value: PybricksBroadcastData):
+        value = value if isinstance(value, tuple) else (value,)
         message = encode_message(self.channel, *value)
-        self._manufacturer_data[self.LEGO_CID] = Variant("ay", message)
+        self._manufacturer_data[self.LEGO_CID] = Variant("ay", message)  # type: ignore
         # Notify BlueZ of the changed manufacturer data so the advertisement is updated
         self.emit_properties_changed(
             changed_properties={"ManufacturerData": self._manufacturer_data}
         )
 
     def __str__(self):
-        return f"PybricksBroadcastAdvertisement(channel={self.channel}, data={self.message}, timeout={self._timeout})"
+        return f"PybricksBroadcastAdvertisement(channel={self.channel}, data={self.message!r}, timeout={self._timeout})"
 
 
 class LEAdvertisingManager:
@@ -516,17 +519,21 @@ class LEAdvertisingManager:
 
     INTERFACE_NAME: str = "org.bluez.LEAdvertisingManager1"
 
-    def __init__(self, adapter: ProxyObject = None, adv_manager: ProxyInterface = None):
+    def __init__(
+        self,
+        adapter: ProxyObject | None = None,
+        adv_manager: ProxyInterface | None = None,
+    ):
         if adapter is None and adv_manager is None:
             raise ValueError("adapter or adv_manager required")
 
-        if adv_manager is not None:
-            self.adv_manager = adv_manager
-        else:
-            self.adv_manager = adapter.get_interface(self.INTERFACE_NAME)
+        self.adv_manager = adv_manager or adapter.get_interface(self.INTERFACE_NAME)  # type: ignore
 
-    async def register_advertisement(self, adv: LEAdvertisement, options: dict = {}):
-        return await self.adv_manager.call_register_advertisement(adv.path, options)
+    async def register_advertisement(
+        self, adv: LEAdvertisement, options: dict | None = None
+    ):
+        options = options or {}
+        return await self.adv_manager.call_register_advertisement(adv.path, options)  # type: ignore
 
     @overload
     async def unregister_advertisement(self, adv: LEAdvertisement): ...
@@ -534,34 +541,34 @@ class LEAdvertisingManager:
     async def unregister_advertisement(self, adv: str): ...
     async def unregister_advertisement(self, adv):
         if isinstance(adv, str):
-            return await self.adv_manager.call_unregister_advertisement(adv)
+            return await self.adv_manager.call_unregister_advertisement(adv)  # type: ignore
         else:
-            return await self.adv_manager.call_unregister_advertisement(adv.path)
+            return await self.adv_manager.call_unregister_advertisement(adv.path)  # type: ignore
 
     async def active_instances(self) -> int:
         """Number of active advertising instances."""
-        return await self.adv_manager.get_active_instances()
+        return await self.adv_manager.get_active_instances()  # type: ignore
 
     async def supported_instances(self) -> int:
         """Number of available advertising instances."""
-        return await self.adv_manager.get_supported_instances()
+        return await self.adv_manager.get_supported_instances()  # type: ignore
 
     async def supported_includes(self) -> list[Include]:
         """List of supported system includes."""
-        return await self.adv_manager.get_supported_includes()
+        return await self.adv_manager.get_supported_includes()  # type: ignore
 
     async def supported_secondary_channels(self) -> list[SecondaryChannel]:
         """List of supported Secondary channels.
         Secondary channels can be used to advertise  with the corresponding PHY.
         """
-        return await self.adv_manager.get_supported_secondary_channels()
+        return await self.adv_manager.get_supported_secondary_channels()  # type: ignore
 
     async def supported_capabilities(self) -> dict[Capability, Any]:
         """Enumerates Advertising-related controller capabilities useful to the client."""
-        return await self.adv_manager.get_supported_capabilities()
+        return await self.adv_manager.get_supported_capabilities()  # type: ignore
 
     async def supported_features(self) -> list[Feature]:
         """List  of supported platform features.
         If no features are available on the platform, the SupportedFeatures array will be empty.
         """
-        return await self.adv_manager.get_supported_features()
+        return await self.adv_manager.get_supported_features()  # type: ignore

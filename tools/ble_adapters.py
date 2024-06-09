@@ -15,8 +15,8 @@ async def run():
     pp(dbus_objs)
     await adapters.refresh()
     pp(adapters.adapters)
-    pp(adapters._bluez.adapters)
-    pp(adapters._bluez._packed_managed_objects)
+    pp(adapters._bluez.adapters)  # type: ignore # _bluez is a private member
+    pp(adapters._bluez._packed_managed_objects)  # type: ignore # _bluez is a private member
 
 
 asyncio.run(run())

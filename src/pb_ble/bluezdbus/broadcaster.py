@@ -36,12 +36,11 @@ class BlueZBroadcaster(AbstractAsyncContextManager):
         self.advertisements: dict[str, BroadcastAdvertisement] = {}
 
     @overload
+    async def stop_broadcast(self, adv: str): ...
+    @overload
     async def stop_broadcast(self, adv: BroadcastAdvertisement): ...
-    async def stop_broadcast(self, adv: str):
-        if isinstance(adv, BroadcastAdvertisement):
-            path = adv.path
-        else:
-            path = adv
+    async def stop_broadcast(self, adv: str | BroadcastAdvertisement):
+        path = adv.path if isinstance(adv, BroadcastAdvertisement) else adv
 
         try:
             await self.adv_manager.unregister_advertisement(path)
