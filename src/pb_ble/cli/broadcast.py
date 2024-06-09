@@ -35,14 +35,14 @@ parser.add_argument(
     "--name",
     required=False,
     default="pb_vhub",  # TODO: Must be valid DBus path segment
-    help="Bluetooth device name",
+    help="Bluetooth device name to use for advertisements",
 )
 parser.add_argument(
     "--timeout",
     required=False,
     type=int,
     default=10,
-    help="Broadcast timeout",
+    help="Broadcast timeout in seconds",
 )
 parser.add_argument(
     "--debug",
