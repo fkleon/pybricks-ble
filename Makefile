@@ -21,6 +21,14 @@ format: .venv  ## Format the code base.
 	ruff check . --fix
 	ruff format .
 
+.PHONY: type
+typecheck: .venv ## Type-check the code base.
+	mypy \
+		--disable-error-code=method-assign \
+		--ignore-missing-imports \
+		--check-untyped-defs \
+		.
+
 .PHONY: test
 test: .venv
 	pytest
