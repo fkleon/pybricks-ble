@@ -6,7 +6,6 @@ import asyncio
 import logging
 from contextlib import AbstractAsyncContextManager
 from typing import (
-    Optional,
     overload,
 )
 
@@ -97,7 +96,7 @@ class BlueZBroadcaster(AbstractAsyncContextManager):
 
         self.advertisements[adv.path] = adv
 
-    def is_broadcasting(self, adv: Optional[BroadcastAdvertisement] = None) -> bool:
+    def is_broadcasting(self, adv: BroadcastAdvertisement | None = None) -> bool:
         if adv is not None:
             return adv.path in self.advertisements
         else:

@@ -13,12 +13,6 @@ from enum import Enum
 from typing import (
     Any,
     Callable,
-    Dict,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Union,
     no_type_check,
     overload,
 )
@@ -29,7 +23,12 @@ from dbus_fast.proxy_object import BaseProxyInterface, BaseProxyObject
 from dbus_fast.service import ServiceInterface, _Property, dbus_property, method
 from dbus_fast.signature import Variant
 
-from ..constants import LEGO_CID, PybricksData, PybricksMessage
+from ..constants import (
+    LEGO_CID,
+    PybricksBroadcast,
+    PybricksBroadcastData,
+    PybricksBroadcastValue,
+)
 from ..messages import decode_message, encode_message, pack_pnp_id
 
 logger = logging.getLogger(__name__)
@@ -97,7 +96,7 @@ class LEAdvertisement(ServiceInterface):
         advertising_type: Type,
         local_name: str,
         index: int = 0,
-        includes: Set[Include] = set(),
+        includes: set[Include] = set(),
     ):
         if index < 0:
             raise ValueError("index must be positive")
@@ -106,14 +105,14 @@ class LEAdvertisement(ServiceInterface):
         self.path = f"/org/bluez/{local_name}/advertisement{index:03}"
 
         self._type: str = advertising_type.value
-        self._service_uuids: List[str] = []
-        self._manufacturer_data: Dict[int, bytes] = {}  # uint16 -> bytes
-        self._solicit_uuids: List[str] = []
-        self._service_data: Dict[Union[str, int], bytes] = {}  # uint16 | str -> bytes
-        self._data: Dict[int, bytes] = {}  # EXPERIMENTAL # uint8 -> bytes
+        self._service_uuids: list[str] = []
+        self._manufacturer_data: dict[int, bytes] = {}  # uint16 -> bytes
+        self._solicit_uuids: list[str] = []
+        self._service_data: dict[str | int, bytes] = {}  # uint16 | str -> bytes
+        self._data: dict[int, bytes] = {}  # EXPERIMENTAL # uint8 -> bytes
         self._discoverable: bool = False  # EXPERIMENTAL
         self._discoverable_timeout: int = 0  # EXPERIMENTAL # uint16
-        self._includes: List[str] = [i.value for i in includes]
+        self._includes: list[str] = [i.value for i in includes]
         self._local_name: str = local_name
         self._appearance: int = 0x00  # uint16
         self._duration: int = 2  # uint16
@@ -462,7 +461,7 @@ class BroadcastAdvertisement(LEAdvertisement):
         self.on_release(self.path)
 
 
-class PybricksBroadcast(BroadcastAdvertisement):
+class PybricksBroadcastAdvertisement(BroadcastAdvertisement):
     """
     Implementation of a Pybricks broadcast advertisement.
 
@@ -476,7 +475,7 @@ class PybricksBroadcast(BroadcastAdvertisement):
         self,
         local_name: str,
         channel: int = 0,
-        data: Optional[PybricksData] = None,
+        data: PybricksBroadcastData | None = None,
         on_release: Callable[[str], None] = lambda path: None,
     ):
         super().__init__(local_name, channel, on_release)
@@ -488,7 +487,7 @@ class PybricksBroadcast(BroadcastAdvertisement):
         return self.index
 
     @property
-    def message(self) -> Optional[PybricksData]:
+    def message(self) -> PybricksBroadcastData:
         if self.LEGO_CID in self._manufacturer_data:
             channel, value = decode_message(
                 self._manufacturer_data[self.LEGO_CID].value
@@ -496,7 +495,7 @@ class PybricksBroadcast(BroadcastAdvertisement):
             return value
 
     @message.setter
-    def message(self, value: PybricksData):
+    def message(self, value: PybricksBroadcastData):
         message = encode_message(self.channel, *value)
         self._manufacturer_data[self.LEGO_CID] = Variant("ay", message)
         # Notify BlueZ of the changed manufacturer data so the advertisement is updated
@@ -505,7 +504,7 @@ class PybricksBroadcast(BroadcastAdvertisement):
         )
 
     def __str__(self):
-        return f"PybricksBroadcast(channel={self.channel}, data={self.message}, timeout={self._timeout})"
+        return f"PybricksBroadcastAdvertisement(channel={self.channel}, data={self.message}, timeout={self._timeout})"
 
 
 class LEAdvertisingManager:

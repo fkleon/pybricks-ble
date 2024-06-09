@@ -7,7 +7,6 @@ from contextlib import AbstractAsyncContextManager
 from struct import pack
 from typing import (
     Iterable,
-    Optional,
     Sequence,
 )
 
@@ -32,22 +31,22 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
 
     def __init__(
         self,
-        channels: Sequence[int] = [],
-        rssi_threshold: Optional[int] = None,
+        channels: Sequence[int] = None,
+        rssi_threshold: int | None = None,
         message_ttl: int = 60,
     ):
-        self.channels = channels
+        self.channels = channels or []
         self.rssi_threshold = rssi_threshold
         self.advertisements = TTLCache(maxsize=len(channels), ttl=message_ttl)
 
-        if channels:
+        if self.channels:
             or_patterns = [
                 OrPattern(
                     0,
                     AdvertisementDataType.MANUFACTURER_SPECIFIC_DATA,
                     pack("<HB", LEGO_CID, channel),
                 )
-                for channel in channels
+                for channel in self.channels
             ]
         else:
             or_patterns = [

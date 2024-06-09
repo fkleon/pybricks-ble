@@ -8,7 +8,7 @@ from .advertisement import (
     BroadcastAdvertisement,
     LEAdvertisement,
     LEAdvertisingManager,
-    PybricksBroadcast,
+    PybricksBroadcastAdvertisement,
 )
 from .broadcaster import BlueZBroadcaster
 from .observer import BlueZPybricksObserver

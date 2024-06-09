@@ -6,13 +6,16 @@ import argparse
 import asyncio
 import json
 import logging
-from typing import Optional
 
 from dbus_fast import BusType
 from dbus_fast.aio import MessageBus, ProxyObject
 
-from pb_ble import PybricksData
-from pb_ble.bluezdbus import BlueZBroadcaster, PybricksBroadcast, get_adapter
+from pb_ble import PybricksBroadcastData
+from pb_ble.bluezdbus import (
+    BlueZBroadcaster,
+    PybricksBroadcastAdvertisement,
+    get_adapter,
+)
 
 parser = argparse.ArgumentParser(
     prog="pb_broadcast",
@@ -53,14 +56,14 @@ async def broadcast(
     device_name: str,
     timeout: int,
     channel: int,
-    data: Optional[PybricksData],
+    data: PybricksBroadcastData | None,
 ):
     stop_event = asyncio.Event()
 
     bus: MessageBus = await MessageBus(bus_type=BusType.SYSTEM).connect()
     adapter: ProxyObject = await get_adapter(bus)
 
-    adv = PybricksBroadcast(
+    adv = PybricksBroadcastAdvertisement(
         device_name, channel, data, on_release=lambda p: stop_event.set()
     )
     adv._timeout = timeout

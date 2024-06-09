@@ -1,6 +1,5 @@
 import logging
 from pprint import pformat
-from typing import Tuple
 
 from bleak.backends.bluezdbus import defs
 from bluetooth_adapters import (
@@ -38,7 +37,7 @@ async def get_all_adapter_details() -> dict[str, AdapterDetailsExt]:
 
 async def get_adapter_details(
     adapter_name: str = adapters.default_adapter,
-) -> Tuple[str, AdapterDetailsExt]:
+) -> tuple[str, AdapterDetailsExt]:
     adapters = await get_all_adapter_details()
     if adapter_name not in adapters:
         raise ValueError(f"Adapter '{adapter_name}' not available")

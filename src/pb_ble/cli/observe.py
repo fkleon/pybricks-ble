@@ -5,6 +5,7 @@ CLI interface to listen for Pybricks BLE broadcasts.
 import argparse
 import asyncio
 import logging
+from typing import Sequence
 
 from pb_ble.bluezdbus import BlueZPybricksObserver
 
@@ -36,7 +37,7 @@ parser.add_argument(
 )
 
 
-async def observe(channels, rssi_threshold):
+async def observe(channels: Sequence[int], rssi_threshold: int):
     stop_event = asyncio.Event()
     async with BlueZPybricksObserver(channels, rssi_threshold):
         await stop_event.wait()

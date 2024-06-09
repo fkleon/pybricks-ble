@@ -8,7 +8,9 @@ References:
 
 from enum import IntEnum
 from struct import pack, unpack_from
-from typing import Literal, Tuple, Union
+from typing import Literal
+
+from .constants import PybricksBroadcast, PybricksBroadcastValue
 
 SIZEOF_INT8_T = 1
 SIZEOF_INT16_T = 2
@@ -48,7 +50,7 @@ OBSERVED_DATA_MAX_SIZE = 31 - 5
 
 def _decode_next_value(
     idx: int, data: bytes
-) -> Tuple[int, Union[None, bool, int, float, str, bytes]]:
+) -> tuple[int, (None | PybricksBroadcastValue)]:
     """
     Decodes the next value in data, starting at idx.
 
@@ -102,12 +104,7 @@ def _decode_next_value(
 
 def decode_message(
     data: bytes,
-) -> Tuple[
-    int,
-    Union[
-        Tuple[Union[bool, int, float, str, bytes]], Union[bool, int, float, str, bytes]
-    ],
-]:
+) -> PybricksBroadcast:
     """
     Parses a Pybricks broadcast message, typically sourced from
     the BLE advertisement manufacturer data.
@@ -138,8 +135,8 @@ def decode_message(
 
 
 def _encode_value(
-    val: Union[bool, int, float, str, bytes],
-) -> Tuple[int, Union[None, bytes]]:
+    val: PybricksBroadcastValue,
+) -> tuple[int, None | bytes]:
     """
     Encodes the given value for a Pybricks broadcast message.
 
@@ -194,9 +191,7 @@ def _encode_value(
     return header, encoded_val
 
 
-def encode_message(
-    channel: int = 0, *values: Union[bool, int, float, str, bytes]
-) -> bytes:
+def encode_message(channel: int = 0, *values: PybricksBroadcastValue) -> bytes:
     """
     Encodes the given values as a Pybricks broadcast message.
 
