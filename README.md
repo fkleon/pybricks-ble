@@ -18,7 +18,7 @@ A `Makefile` is provided for convenience. Running one of the provided targets wi
 * `lint`: Lint the code base.
 * `typecheck`: Type-check the code base.
 
-Aternatively, use `pip` for an editable installation of this library:
+Alternatively, use `pip` for an editable installation of this library:
 
 ```
 pip install -e '.[dev]'
@@ -26,9 +26,28 @@ pip install -e '.[dev]'
 
 ### Testing
 
-Running the tests require a system with DBus, BlueZ and a powered BLE-capable Bluetooth device.
+There are two test modes:
 
-The tests currently interface with BlueZ directly, so will trigger actual Bluetooth advertisements to be sent for a short time.
+* unit test (default): run the test suite against a BlueZ mock service.
+* integration test: run the tests suite against the real BlueZ service on your system.
+
+#### Unit tests
+
+Running the unit tests requires a system with DBus.
+
+```sh
+make test
+```
+
+#### Integration tests
+
+Running the integration tests requires a system with DBus, BlueZ and a powered BLE-capable Bluetooth device.
+
+These tests interface with BlueZ directly, so will trigger actual Bluetooth advertisements to be sent for a short time.
+
+```sh
+make integration-test
+```
 
 ## Tools
 
