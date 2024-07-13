@@ -1,38 +1,19 @@
-import asyncio
+import os
 
-import pytest
-import pytest_asyncio
-from dbus_fast.aio import MessageBus
-from dbus_fast.constants import BusType
-
-from pb_ble.bluezdbus import get_adapter, get_adapter_details
+# TODO use pytest.options?
+is_bluez_mock = not os.environ.get("DISABLE_BLUEZ_MOCK", False)
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    loop = asyncio.get_event_loop()
-    yield loop
-    loop.close()
+pytest_plugins = [
+    "tests.fixtures.bluetooth",
+]
+
+if is_bluez_mock:
+    pytest_plugins += ["dbusmock.pytest_fixtures", "tests.fixtures.bluez5_mock"]
 
 
-@pytest_asyncio.fixture(scope="session")
-async def message_bus():
-    bus: MessageBus = await MessageBus(bus_type=BusType.SYSTEM).connect()
-    return bus
-
-
-@pytest_asyncio.fixture(scope="session")
-async def adapter(message_bus):
-    name, details = await get_adapter_details()
-
-    if not all([details["passive_scan"], details["advertise"]]):
-        pytest.skip(reason="Buetooth adapter must support BLE scanning and advertising")
-
-    assert (
-        details["passive_scan"] is True
-    ), "Bluetooth adapter must support BLE scanning"
-    assert (
-        details["advertise"] is True
-    ), "Bluetooth adapter must support BLE advertising"
-
-    return await get_adapter(message_bus)
+def pytest_configure(config) -> None:
+    config.addinivalue_line(
+        "markers",
+        "skip_on_bluez_mock(reason): Skip test on BlueZ mock",
+    )

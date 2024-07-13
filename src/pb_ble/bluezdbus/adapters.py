@@ -28,7 +28,7 @@ async def get_all_adapter_details() -> dict[str, AdapterDetailsExt]:
 
     # Lookup additional details about each adapter
     for adapter, details in adapters.adapters.items():
-        bluez_details = adapters._bluez.adapter_details[adapter]  # type: ignore # _bluez is a private member
+        bluez_details = adapters._bluez.adapter_details.get(adapter, {})  # type: ignore # _bluez is a private member
         advertise = "org.bluez.LEAdvertisingManager1" in bluez_details
         adapters_ext[adapter] = AdapterDetailsExt(**details, advertise=advertise)
 
