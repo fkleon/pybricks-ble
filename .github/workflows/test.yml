@@ -1,0 +1,21 @@
+name: Lint and test
+
+on: pull_request
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        # Tests need access to system packages (for dbus-python)
+        os: [
+            "ubuntu-24.04", # Python 3.12
+          ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: make .venv
+      - name: Run lint
+        run: make lint
+      - name: Run tests
+        run: make test
