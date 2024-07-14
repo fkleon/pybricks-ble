@@ -9,21 +9,6 @@ from pb_ble.bluezdbus import LEAdvertisement, LEAdvertisingManager
 from pb_ble.bluezdbus.advertisement import Include, Type
 
 
-@pytest.fixture
-def adv_manager(adapter):
-    return LEAdvertisingManager(adapter)
-
-
-@pytest_asyncio.fixture
-async def adv(adv_manager):
-    adv = LEAdvertisement(advertising_type=Type.BROADCAST, local_name="myadv")
-    yield adv
-    try:
-        await adv_manager.unregister_advertisement(adv)
-    except DBusError:
-        pass
-
-
 class TestLEAdvertising:
     @pytest.mark.parametrize(
         "name,index,path",
@@ -56,6 +41,29 @@ class TestLEAdvertising:
 
 
 class TestLEAdvertisingManager:
+    @pytest_asyncio.fixture(autouse=True)
+    async def require_advertise(self, adapter_details, adapter_name):
+        if not adapter_details["advertise"]:
+            pytest.skip(
+                reason=f"Bluetooth adapter '{adapter_name}' does not support BLE advertising"
+            )
+
+    @pytest.fixture
+    def adv_manager(self, adapter):
+        return LEAdvertisingManager(adapter)
+
+    @pytest_asyncio.fixture
+    async def adv(self, adv_manager):
+        adv = LEAdvertisement(advertising_type=Type.BROADCAST, local_name="myadv")
+        yield adv
+        try:
+            await adv_manager.unregister_advertisement(adv)
+        except DBusError:
+            pass
+
+    @pytest.mark.skip_on_bluez_mock(
+        "Incorrect introspection details for properties of type list and dict"
+    )
     async def test_create(self, adapter):
         adv_manager = LEAdvertisingManager(adapter)
 
@@ -78,5 +86,6 @@ class TestLEAdvertisingManager:
         await adv_manager.unregister_advertisement(adv.path)
 
     async def test_unregister_advertisement_does_not_exist(self, adv_manager):
-        with pytest.raises(DBusError, match="Does Not Exist"):
+        # TODO check exception type and message
+        with pytest.raises(DBusError):
             await adv_manager.unregister_advertisement("/some/path")

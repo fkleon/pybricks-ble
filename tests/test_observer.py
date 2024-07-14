@@ -2,13 +2,18 @@ from asyncio import Barrier, Lock, Semaphore
 
 import pytest
 import pytest_asyncio
-from bluetooth_adapters import get_dbus_managed_objects
 
 from pb_ble.bluezdbus import (
-    BlueZBroadcaster,
     BlueZPybricksObserver,
-    BroadcastAdvertisement,
 )
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def require_passive_scan(adapter_details, adapter_name):
+    if not adapter_details["passive_scan"]:
+        pytest.skip(
+            reason=f"Bluetooth adapter '{adapter_name}' does not support BLE passive scanning"
+        )
 
 
 @pytest_asyncio.fixture()
@@ -22,6 +27,6 @@ class TestBlueZObserver:
         observer = BlueZPybricksObserver([0])
         assert observer is not None
 
-    def test_observe(self, observer):
+    def test_observe(self, adapter, observer):
         data = observer.observe(0)
         assert data is None

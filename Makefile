@@ -8,7 +8,7 @@ help: ## Display this help message.
 
 
 .venv: pyproject.toml  ## Create the python virtual environment.
-	python3 -m venv --clear .venv
+	python3 -m venv --clear --upgrade-deps --system-site-packages .venv
 	pip install -e '.[dev]'
 
 .PHONY: lint
@@ -27,8 +27,15 @@ typecheck: .venv ## Type-check the code base.
 		--disable-error-code=method-assign \
 		--ignore-missing-imports \
 		--check-untyped-defs \
+		--exclude build/ \
 		.
 
 .PHONY: test
-test: .venv
+test: .venv ## Run the unit tests against a BlueZ mock service
+	pytest
+
+.PHONY: integration-test
+make integration-test: ## Run the integration tests against the real BlueZ service
+integration-test: export DISABLE_BLUEZ_MOCK=1
+integration-test: .venv
 	pytest

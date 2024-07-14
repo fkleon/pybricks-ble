@@ -2,14 +2,24 @@ from asyncio import Barrier, Lock, Semaphore
 
 import pytest
 import pytest_asyncio
-from bluetooth_adapters import get_dbus_managed_objects
 
-from pb_ble.bluezdbus import BlueZBroadcaster, BroadcastAdvertisement
+from pb_ble.bluezdbus import (
+    BlueZBroadcaster,
+    BroadcastAdvertisement,
+)
 
 lock = Lock()
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture(autouse=True)
+async def require_advertise(adapter_details, adapter_name):
+    if not adapter_details["advertise"]:
+        pytest.skip(
+            reason=f"Bluetooth adapter '{adapter_name}' does not support BLE advertising"
+        )
+
+
+@pytest_asyncio.fixture
 async def broadcaster(message_bus, adapter):
     broadcaster = BlueZBroadcaster(bus=message_bus, adapter=adapter, name="vhub")
     await lock.acquire()
@@ -58,6 +68,7 @@ class TestBlueZBroadcaster:
         assert len(broadcaster.advertisements) == 1
         assert adv.path in broadcaster.advertisements
 
+    @pytest.mark.skip_on_bluez_mock("Does not implement release timeout")
     async def test_broadcast_release(self, broadcaster):
         # GIVEN a broadcast
         semaphore = Semaphore(1)
