@@ -37,7 +37,7 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
         self.channels = channels or []
         self.rssi_threshold = rssi_threshold
         self.advertisements: TTLCache = TTLCache(
-            maxsize=len(self.channels), ttl=message_ttl
+            maxsize=len(self.channels) or 255, ttl=message_ttl
         )
 
         or_patterns: list[OrPattern | tuple[int, AdvertisementDataType, bytes]]
