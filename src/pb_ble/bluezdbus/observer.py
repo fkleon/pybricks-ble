@@ -5,9 +5,7 @@ This module contains a Pybricks-specific implementation of the BLE "Observer" ro
 import logging
 from contextlib import AbstractAsyncContextManager
 from struct import pack
-from typing import (
-    Sequence,
-)
+from typing import NamedTuple, Sequence
 
 from bleak import AdvertisementData, BleakScanner, BLEDevice
 from bleak.assigned_numbers import AdvertisementDataType
@@ -19,6 +17,15 @@ from ..constants import LEGO_CID, PybricksBroadcastData
 from ..messages import decode_message
 
 log = logging.getLogger(name=__name__)
+
+
+class ObservedAdvertisement(NamedTuple):
+    """
+    Data structure for an observed broadcast.
+    """
+
+    data: PybricksBroadcastData
+    rssi: int
 
 
 class BlueZPybricksObserver(AbstractAsyncContextManager):
@@ -76,9 +83,9 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
         message = ad.manufacturer_data[LEGO_CID]
         channel, data = decode_message(message)
         log.info("Pybricks broadcast on channel %i: %s", channel, data)
-        self.advertisements[channel] = data
+        self.advertisements[channel] = ObservedAdvertisement(data, ad.rssi)
 
-    def observe(self, channel: int) -> PybricksBroadcastData | None:
+    def observe(self, channel: int) -> ObservedAdvertisement | None:
         return self.advertisements.get(channel, None)
 
     async def __aenter__(self):
