@@ -3,6 +3,9 @@ from typing import NamedTuple
 LEGO_CID = 0x0397
 """LEGO System A/S company identifier."""
 
+PYBRICKS_MAX_CHANNEL = 255  # uint8
+"""Highest channel supported by Pybricks broadcast/observe messages"""
+
 # Type aliases
 PybricksBroadcastValue = bool | int | float | str | bytes
 """ Type of a value that can be broadcast."""

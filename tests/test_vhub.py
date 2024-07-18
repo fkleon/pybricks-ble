@@ -18,14 +18,16 @@ class TestVirtualBLE:
         assert ble is not None
 
     async def test_observe(self):
-        ble = await get_virtual_ble(1, [2])
+        ble = await get_virtual_ble(broadcast_channel=1, observe_channels=[2])
         data = ble.observe(2)
         assert data is None
 
     async def test_broadcast(self):
-        ble = await get_virtual_ble(1, [2])
+        ble = await get_virtual_ble(broadcast_channel=1, observe_channels=[2])
         await ble.broadcast(42)
 
     async def test_context(self):
-        async with await get_virtual_ble(1, [2]) as ble:
+        async with await get_virtual_ble(
+            broadcast_channel=1, observe_channels=[2]
+        ) as ble:
             assert ble.version() is not None
