@@ -26,19 +26,17 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-debug = [
-    "bluetooth-data-tools ~= 1.15",
-]
+debug = ["bluetooth-data-tools ~= 1.15"]
 dev = [
     "async-timer ~= 1.1.6",
-    "mypy",
+    "mypy ~= 1.10.1",
     "pybricks-ble[debug]",
     "pybricksdev >= 1.0.0a48",
     "pytest ~= 8.2",
-    "pytest-asyncio ~= 0.21.1",
-    "python-dbusmock @ git+https://github.com/martinpitt/python-dbusmock@2004c9878e778782b3afa9f0dbbca32fe03f55bb",
-    "ruff ~= 0.4.7",
-    "types-cachetools",
+    "pytest-asyncio ~= 0.23.7",
+    "python-dbusmock ~= 0.32.1",
+    "ruff ~= 0.5.2",
+    "types-cachetools ~= 5.3",
     "types-setuptools",
 ]
 
@@ -50,10 +48,7 @@ pb_broadcast = "pb_ble.cli.broadcast:main"
 pb_observe = "pb_ble.cli.observe:main"
 
 [tool.pytest.ini_options]
-addopts = [
-    "--import-mode=importlib",
-    "--asyncio-mode=auto",
-]
+addopts = ["--import-mode=importlib", "--asyncio-mode=auto"]
 
 [tool.ruff]
 src = ["src", "tests"]
