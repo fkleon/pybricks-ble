@@ -1,5 +1,3 @@
-from asyncio import Barrier, Lock, Semaphore
-
 import pytest
 import pytest_asyncio
 

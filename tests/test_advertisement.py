@@ -1,9 +1,6 @@
-from asyncio import Barrier, Lock, Semaphore
-
 import pytest
 import pytest_asyncio
-from bluetooth_adapters import get_dbus_managed_objects
-from dbus_fast.errors import DBusError, InvalidObjectPathError
+from dbus_fast.errors import DBusError
 
 from pb_ble.bluezdbus import LEAdvertisement, LEAdvertisingManager
 from pb_ble.bluezdbus.advertisement import Include, Type

@@ -6,7 +6,6 @@ import logging
 from contextlib import AbstractAsyncContextManager
 from struct import pack
 from typing import (
-    Iterable,
     Sequence,
 )
 

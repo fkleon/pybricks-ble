@@ -17,19 +17,16 @@ from typing import (
     overload,
 )
 
-from dbus_fast.aio import MessageBus, ProxyInterface, ProxyObject
+from dbus_fast.aio import ProxyInterface, ProxyObject
 from dbus_fast.constants import PropertyAccess
-from dbus_fast.proxy_object import BaseProxyInterface, BaseProxyObject
 from dbus_fast.service import ServiceInterface, _Property, dbus_property, method
 from dbus_fast.signature import Variant
 
 from ..constants import (
     LEGO_CID,
-    PybricksBroadcast,
     PybricksBroadcastData,
-    PybricksBroadcastValue,
 )
-from ..messages import decode_message, encode_message, pack_pnp_id
+from ..messages import decode_message, encode_message
 
 logger = logging.getLogger(__name__)
 
