@@ -1,4 +1,4 @@
-from asyncio import Barrier, Lock, Semaphore
+from asyncio import Lock, Semaphore
 
 import pytest
 import pytest_asyncio
