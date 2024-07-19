@@ -34,7 +34,7 @@ dev = [
     "pybricksdev >= 1.0.0a48",
     "pytest ~= 8.2",
     "pytest-asyncio ~= 0.23.7",
-    "python-dbusmock ~= 0.32.1",
+    "python-dbusmock @ git+https://github.com/martinpitt/python-dbusmock@d9893666bdf1cc35e7d4014a68ed15c2b666ed4e",
     "ruff ~= 0.5.2",
     "types-cachetools ~= 5.3",
     "types-setuptools",
