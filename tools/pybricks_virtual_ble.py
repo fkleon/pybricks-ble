@@ -1,3 +1,7 @@
+"""
+An example showing a "Virtual Hub BLE radio" operating in Python.
+"""
+
 import asyncio
 import random
 
@@ -19,7 +23,7 @@ async def observe(vble: _common.BLE, observe_channel: int, interval: float = 1.0
             print(f"Observation: '{data}' [{rssi} dBm]")
 
 
-async def broadcast(vble, interval: float = 10.0):
+async def broadcast(vble: _common.BLE, interval: float = 10.0):
     """
     Coroutine that broadcasts a new random number
     on the given interval.
@@ -31,19 +35,22 @@ async def broadcast(vble, interval: float = 10.0):
 
 
 async def main():
-    broadcast_channel = 1
+    # observe config
+    scanning_mode = "passive"
     observe_channel = 0
 
-    tasks = set()
+    # broadcast config
+    broadcast_channel = 1
 
-    async with await get_virtual_ble(broadcast_channel, [observe_channel]) as vble:
+    async with await get_virtual_ble(
+        broadcast_channel=broadcast_channel,
+        observe_channels=[observe_channel],
+        scanning_mode=scanning_mode,
+    ) as vble:
         observe_task = asyncio.create_task(observe(vble, observe_channel))
         broadcast_task = asyncio.create_task(broadcast(vble))
 
-        tasks.add(observe_task)
-        tasks.add(broadcast_task)
-
-        await asyncio.gather(*tasks)
+        await asyncio.gather(observe_task, broadcast_task)
 
 
 asyncio.run(main())

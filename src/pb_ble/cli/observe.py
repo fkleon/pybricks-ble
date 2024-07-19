@@ -5,7 +5,7 @@ CLI interface to listen for Pybricks BLE broadcasts.
 import argparse
 import asyncio
 import logging
-from typing import Sequence
+from typing import Literal, Sequence
 
 from pb_ble.bluezdbus import BlueZPybricksObserver
 
@@ -30,6 +30,13 @@ parser.add_argument(
     help="RSSI threshold",
 )
 parser.add_argument(
+    "--mode",
+    required=False,
+    choices=["active", "passive"],
+    default="passive",
+    help="BLE scanning mode",
+)
+parser.add_argument(
     "--debug",
     required=False,
     action="store_true",
@@ -37,9 +44,15 @@ parser.add_argument(
 )
 
 
-async def observe(channels: Sequence[int], rssi_threshold: int):
+async def observe(
+    scanning_mode: Literal["active", "passive"],
+    channels: Sequence[int],
+    rssi_threshold: int,
+):
     stop_event = asyncio.Event()
-    async with BlueZPybricksObserver(channels, rssi_threshold):
+    async with BlueZPybricksObserver(
+        scanning_mode=scanning_mode, channels=channels, rssi_threshold=rssi_threshold
+    ):
         await stop_event.wait()
 
 
@@ -52,6 +65,7 @@ def main():
     try:
         asyncio.run(
             observe(
+                scanning_mode=args.mode,
                 channels=args.channels,
                 rssi_threshold=args.rssi,
             )

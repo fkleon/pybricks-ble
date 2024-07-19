@@ -1,6 +1,6 @@
 import sys
 from contextlib import AsyncExitStack
-from typing import Optional, Sequence, Tuple, Union
+from typing import Literal, Optional, Sequence, Tuple, Union
 
 from dbus_fast.aio import MessageBus, ProxyObject
 from dbus_fast.constants import BusType
@@ -26,15 +26,15 @@ class VirtualBLE(_common.BLE, AsyncExitStack):
         broadcaster: BlueZBroadcaster,
         observer: BlueZPybricksObserver,
         broadcast_channel: int,
-        device_name: str = DEFAULT_DEVICE_NAME,
         device_version: str = DEFAULT_DEVICE_VERSION,
     ):
         super(AsyncExitStack, self).__init__()
-        self.device_name = device_name
+
         self.device_version = device_version
         self.broadcaster = broadcaster
         self.observer = observer
-        self._adv = PybricksBroadcastAdvertisement(self.device_name, broadcast_channel)
+
+        self._adv = PybricksBroadcastAdvertisement(broadcaster.name, broadcast_channel)
 
     async def __aenter__(self):
         try:
@@ -68,18 +68,26 @@ class VirtualBLE(_common.BLE, AsyncExitStack):
 
 
 async def get_virtual_ble(
-    broadcast_channel: int, observe_channels: Sequence[int] | None = None
+    device_name: str = VirtualBLE.DEFAULT_DEVICE_NAME,
+    broadcast_channel: int = 0,
+    observe_channels: Sequence[int] | None = None,
+    scanning_mode: Literal["active", "passive"] = "passive",
+    device_filter: str | None = None,
 ) -> _common.BLE:
     bus: MessageBus = await MessageBus(bus_type=BusType.SYSTEM).connect()
     name, details = await get_adapter_details()
     adapter: ProxyObject = await get_adapter(bus, name)
 
-    broadcaster = BlueZBroadcaster(bus, adapter, VirtualBLE.DEFAULT_DEVICE_NAME)
-    observer = BlueZPybricksObserver(channels=observe_channels)
+    broadcaster = BlueZBroadcaster(bus=bus, adapter=adapter, name=device_name)
+    observer = BlueZPybricksObserver(
+        scanning_mode=scanning_mode,
+        channels=observe_channels,
+        device_pattern=device_filter,
+    )
 
     return VirtualBLE(
-        broadcaster,
-        observer,
-        broadcast_channel,
+        broadcaster=broadcaster,
+        observer=observer,
+        broadcast_channel=broadcast_channel,
         device_version=str(details["hw_version"]),
     )
