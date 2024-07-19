@@ -58,9 +58,6 @@ class TestLEAdvertisingManager:
         except DBusError:
             pass
 
-    @pytest.mark.skip_on_bluez_mock(
-        "Incorrect introspection details for properties of type list and dict"
-    )
     async def test_create(self, adapter):
         adv_manager = LEAdvertisingManager(adapter)
 
