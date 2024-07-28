@@ -5,9 +5,57 @@ Parse raw BLE advertisement data
 from struct import unpack_from
 
 from bleak.assigned_numbers import AdvertisementDataType
-from bluetooth_data_tools import (
-    parse_advertisement_data,
-)
+from bluetooth_data_tools import BLEGAPAdvertisement, parse_advertisement_data
+
+from pb_ble import LEGO_CID, decode_message
+
+
+def print_adv(adv_data_hex: str):
+    adv_data_bin = bytes.fromhex(adv_data_hex)
+
+    print(f"Advertisement length: {len(adv_data_bin)}")
+    ad_sections = []
+    index = 0
+
+    # parse remaining sections
+    # 37 bytes max
+    while index < len(adv_data_bin):
+        length, ad_type = unpack_from("<BB", adv_data_bin, index)
+        index += 1
+
+        # length 2 for length and ad_type
+        data = None
+        if length > 1:
+            data = adv_data_bin[index + 1 : index + length]
+
+        ad_sections.append(
+            {"type": AdvertisementDataType(ad_type), "length": length, "data": data}
+        )
+
+        index += length
+
+    print("Advertisement sections:")
+    print(*ad_sections, sep="\n", end="\n\n")
+
+    adv_data: BLEGAPAdvertisement = parse_advertisement_data([adv_data_bin])
+
+    print(f"Parsed advertisement: {adv_data}")
+    print(
+        f"Local name: {adv_data.local_name}",
+        f"Service UUIDs: {adv_data.service_uuids}",
+        f"Service data: {adv_data.service_data}",
+        f"Manufacturer data: {adv_data.manufacturer_data}",
+        f"TX power: {adv_data.tx_power}",
+        sep="\n",
+    )
+
+    pybricks_data = adv_data.manufacturer_data.get(LEGO_CID, None)
+    if pybricks_data:
+        print("Pybricks message:", decode_message(pybricks_data))
+
+
+adv_data_hex = "07 FF 97 03 00 00 61 21 0A 16 50 2A 01 97 03 41 00 00 00 0D 09 50 79 62 72 69 63 6B 73 20 48 75 62"
+print_adv(adv_data_hex)
 
 # Pybricks regular advertisement
 # length 49
@@ -67,41 +115,3 @@ adv_data_hex = "0E 09 70 79 62 72 69 63 6B 73 5F 76 68 75 62"
 
 # Random broadcast: Buds Live (2x manufacturer data)
 adv_data_hex = "02 01 18 1B FF 75 00 42 09 81 02 14 15 04 21 01 49 5C 17 01 17 05 BC AF CF 00 00 00 00 93 00 0A 09 42 75 64 73 20 4C 69 76 65 10 FF 75 00 00 2B 4B A5 C5 66 80 64 63 65 00 01"
-
-adv_data_bin = bytes.fromhex(adv_data_hex)
-
-print(f"Advertisement length: {len(adv_data_bin)}")
-ad_sections = []
-index = 0
-
-# parse remaining sections
-# 37 bytes max
-while index < len(adv_data_bin):
-    length, ad_type = unpack_from("<BB", adv_data_bin, index)
-    index += 1
-
-    # length 2 for length and ad_type
-    data = None
-    if length > 1:
-        data = adv_data_bin[index + 1 : index + length]
-
-    ad_sections.append(
-        {"type": AdvertisementDataType(ad_type), "length": length, "data": data}
-    )
-
-    index += length
-
-print("Advertisement sections:")
-print(*ad_sections, sep="\n", end="\n\n")
-
-adv_data = parse_advertisement_data([adv_data_bin])
-
-print(f"Parsed advertisement: {adv_data}")
-print(
-    f"Local name: {adv_data.local_name}",
-    f"Service UUIDs: {adv_data.service_uuids}",
-    f"Service data: {adv_data.service_data}",
-    f"Manufacturer data: {adv_data.manufacturer_data}",
-    f"TX power: {adv_data.tx_power}",
-    sep="\n",
-)
