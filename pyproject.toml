@@ -29,7 +29,7 @@ dependencies = [
 debug = ["bluetooth-data-tools ~= 1.15"]
 dev = [
     "async-timer ~= 1.1.6",
-    "mypy ~= 1.10.1",
+    "mypy ~= 1.11.1",
     "pybricks-ble[debug]",
     "pybricksdev >= 1.0.0a48",
     "pytest ~= 8.2",

@@ -5,7 +5,7 @@ This module contains a Pybricks-specific implementation of the BLE "Observer" ro
 import logging
 from contextlib import AbstractAsyncContextManager
 from struct import pack
-from typing import Literal, NamedTuple, Sequence
+from typing import NamedTuple, Sequence
 
 from bleak import AdvertisementData, BleakScanner, BLEDevice
 from bleak.assigned_numbers import AdvertisementDataType
@@ -13,7 +13,12 @@ from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 from bleak.backends.bluezdbus.scanner import BlueZDiscoveryFilters, BlueZScannerArgs
 from cachetools import TTLCache
 
-from ..constants import LEGO_CID, PYBRICKS_MAX_CHANNEL, PybricksBroadcastData
+from ..constants import (
+    LEGO_CID,
+    PYBRICKS_MAX_CHANNEL,
+    PybricksBroadcastData,
+    ScanningMode,
+)
 from ..messages import decode_message
 
 log = logging.getLogger(name=__name__)
@@ -37,7 +42,7 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
 
     def __init__(
         self,
-        scanning_mode: Literal["active", "passive"] = "passive",
+        scanning_mode: ScanningMode = "passive",
         channels: Sequence[int] | None = None,
         rssi_threshold: int | None = None,
         device_pattern: str | None = "Pybricks",

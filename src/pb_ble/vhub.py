@@ -1,6 +1,6 @@
 import sys
 from contextlib import AsyncExitStack
-from typing import Literal, Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union
 
 from dbus_fast.aio import MessageBus, ProxyObject
 from dbus_fast.constants import BusType
@@ -13,6 +13,7 @@ from .bluezdbus import (
     get_adapter,
     get_adapter_details,
 )
+from .constants import ScanningMode
 
 
 class VirtualBLE(_common.BLE, AsyncExitStack):
@@ -71,7 +72,7 @@ async def get_virtual_ble(
     device_name: str = VirtualBLE.DEFAULT_DEVICE_NAME,
     broadcast_channel: int = 0,
     observe_channels: Sequence[int] | None = None,
-    scanning_mode: Literal["active", "passive"] = "passive",
+    scanning_mode: ScanningMode = "passive",
     device_filter: str | None = None,
 ) -> _common.BLE:
     bus: MessageBus = await MessageBus(bus_type=BusType.SYSTEM).connect()
