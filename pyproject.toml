@@ -33,7 +33,7 @@ dev = [
     "pybricks-ble[debug]",
     "pybricksdev >= 1.0.0a48",
     "pytest ~= 8.2",
-    "pytest-asyncio ~= 0.23.7",
+    "pytest-asyncio ~= 0.24.0a1",
     "python-dbusmock @ git+https://github.com/martinpitt/python-dbusmock@d9893666bdf1cc35e7d4014a68ed15c2b666ed4e",
     "ruff ~= 0.5.2",
     "types-cachetools ~= 5.3",
@@ -48,7 +48,9 @@ pb_broadcast = "pb_ble.cli.broadcast:main"
 pb_observe = "pb_ble.cli.observe:main"
 
 [tool.pytest.ini_options]
-addopts = ["--import-mode=importlib", "--asyncio-mode=auto"]
+addopts = ["--import-mode=importlib"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 src = ["src", "tests"]
