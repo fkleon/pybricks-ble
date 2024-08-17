@@ -7,8 +7,8 @@ References:
 """
 
 from enum import IntEnum
-from struct import pack, unpack_from
-from typing import Literal
+from struct import pack, unpack, unpack_from
+from typing import Literal, Tuple
 
 from .constants import PybricksBroadcast, PybricksBroadcastValue
 
@@ -258,3 +258,9 @@ def pack_pnp_id(
         "<BHHH", 1 if vendor_id_type == "BT" else 0, vendor_id, product_id, product_rev
     )
     return pnp_id
+
+
+def unpack_pnp_id(data: bytes) -> Tuple[Literal["BT", "USB"], int, int, int]:
+    vid_type, vid, pid, rev = unpack("<BHHH", data)
+    vid_type = "BT" if vid_type else "USB"
+    return vid_type, vid, pid, rev
