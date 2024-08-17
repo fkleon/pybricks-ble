@@ -1,14 +1,23 @@
-# Pybricks BLE broadcast client/server
+# pb_ble
 
-A Python implementation of the [Pybricks Bluetooth Low Energy Broadcast/Observe](https://github.com/pybricks/technical-info/blob/master/pybricks-ble-broadcast-observe.md) message format.
+A Python implementation of the [Pybricks connectionless Bluetooth messaging](https://github.com/pybricks/technical-info/blob/master/pybricks-ble-broadcast-observe.md) protocol.
 
-Supports the message format first introduced in Pybricks `v3.3.0b5` and updated in `v3.3.0b9`.
+## What is this?
 
-This library also includes [CLI tools](#tools) to communicate with Pybricks devices via BLE data broadcast:
-* The BLE broadcaster ("Pybricks server") for sending messages to a Pybricks device.
-* The BLE observer ("Pybricks client") for receiving messages from a Pybricks device.
+This package was born from the need to develop, test and debug Pybricks programs that make use of connectionless messaging -- but without having a second (or third..) Pybricks Hub readily available.
 
-Using the CLI tools requires Python 3.10 on Linux with BlueZ.
+It includes both command line tools and Python interfaces to send and receive Pybricks broadcast messages on a device running Linux.
+
+To use the Bluetooth Low Energy (BLE) radio features of this library, you need:
+
+- a BLE-capable Bluetooth adapter.
+- a device running Linux with BlueZ and D-Bus (e.g. Ubuntu 20.04 or newer).
+
+📝 Find out more in the [documentation](https://portfolio.leonhardt.co.nz/pybricks-ble)!
+
+### Alternatives
+
+If you're running a SBC or board that's Micropython-capable, check out [micropython-bleradio](https://github.com/pybricks/micropython-bleradio) from the Pybricks creators.
 
 ## Development
 
@@ -33,7 +42,7 @@ There are two test modes:
 
 #### Unit tests
 
-Running the unit tests requires a system with DBus.
+Running the unit tests requires a system with D-Bus.
 
 ```sh
 make test
@@ -41,7 +50,7 @@ make test
 
 #### Integration tests
 
-Running the integration tests requires a system with DBus, BlueZ and a powered BLE-capable Bluetooth device.
+Running the integration tests requires a system with D-Bus, BlueZ and a powered BLE-capable Bluetooth device.
 
 These tests interface with BlueZ directly, so will trigger actual Bluetooth advertisements to be sent for a short time.
 
@@ -49,65 +58,12 @@ These tests interface with BlueZ directly, so will trigger actual Bluetooth adve
 make integration-test
 ```
 
-## Tools
+### Documentation
 
-### BLE broadcaster
+A web version of the documentation is generated with [pdoc](https://pdoc.dev/).
 
-Sends Pybricks BLE broadcasts.
-
-Uses `dbus_fast` to create broadcasts via simple BlueZ advertisement services.
-
-#### Examples
-
-Broadcast the values `"pybricks"`, `True` and `1.0` on channel 0:
+To run this locally:
 
 ```sh
-pb_broadcast 0 \"pybricks\" true 1.0
-```
-
-#### Usage
-
-```
-usage: pb_broadcast [-h] [--name NAME] [--timeout TIMEOUT] [--debug] data [data ...]
-
-Send Pybricks BLE broadcasts
-
-positional arguments:
-  data               Data to broadcast: channel followed by JSON values
-
-options:
-  -h, --help         show this help message and exit
-  --name NAME        Bluetooth device name to use for advertisements (default: pb_vhub)
-  --timeout TIMEOUT  Broadcast timeout in seconds (default: 10)
-  --debug            Enable debug logging (default: False)
-```
-
-### BLE observer
-
-Receives Pybricks BLE broadcasts via `passive` BLE scanning.
-
-Uses `bleak` for scanning and requires BlueZ >= 5.56 with experimental features enabled.
-
-#### Examples
-
-Observe broadcasts on channel 1 and 2:
-
-```sh
-pb_observe 1 2
-```
-
-#### Usage
-
-```
-usage: pb_observe [-h] [--rssi [-120 to 0]] [--debug] [N [0 to 255] ...]
-
-Observe Pybricks BLE broadcasts
-
-positional arguments:
-  N [0 to 255]        Pybricks channels to observe, or all channels if not given. (default: None)
-
-options:
-  -h, --help          show this help message and exit
-  --rssi [-120 to 0]  RSSI threshold (default: None)
-  --debug             Enable debug logging (default: False)
+make -C docs/ dev
 ```

@@ -23,23 +23,57 @@ log = logging.getLogger(name=__name__)
 class BlueZBroadcaster(AbstractAsyncContextManager):
     """
     A BLE broadcaster backed by BlueZ.
-
     Supports multiple advertising sets in parallel.
+
+    The recommended use is as a context manager, which ensures that all
+    registered broadcasts are stopped when exiting the context:
+
+    ```python
+    bus = ...
+    adapter = ...
+    device_name = "my-computer"
+
+    async with BlueZBroadcaster(bus, adapter, device_name) as broadcaster:
+        # Start broadcasting
+        adv = BroadcastAdvertisement(device_name)
+        await broadcaster.broadcast(adv)
+        # Stop after 10 seconds
+        await asyncio.sleep(10)
+    ```
     """
 
     def __init__(self, bus: MessageBus, adapter: ProxyObject, name: str):
-        self.bus = bus
-        self.adapter = adapter
-        self.name = name
-        self.adv_manager = LEAdvertisingManager(adapter)
-        self.path_namespace = f"/org/bluez/{self.name}"
+        """
+        Creates a new broadcaster.
+
+        :param bus: The message bus.
+        :param adapter: The Bluetooth adapter.
+        :param name: The name of this broadcaster.
+        """
+        self.bus: MessageBus = bus
+        """The message bus used to connect to DBus."""
+        self.adapter: ProxyObject = adapter
+        """A DBus proxy object for the Bluetooth adapter to use for advertising."""
+        self.name: str = name
+        """The name of this broadcaster. Will be used as `local_name` in advertisements."""
+        self.adv_manager: LEAdvertisingManager = LEAdvertisingManager(adapter)
+        """The BlueZ advertising manager client."""
+        self.path_namespace: str = f"/org/bluez/{self.name}"
+        """Path prefix to use for DBus objects created by this broadcaster."""
         self.advertisements: dict[str, BroadcastAdvertisement] = {}
+        """Active advertisements of this broadcaster."""
 
     @overload
     async def stop_broadcast(self, adv: str): ...
     @overload
     async def stop_broadcast(self, adv: BroadcastAdvertisement): ...
     async def stop_broadcast(self, adv: str | BroadcastAdvertisement):
+        """
+        Stop broadcasting the given advertisement.
+
+        :param adv: The broadcast to stop. Takes either the D-Bus path of the
+            advertisement, or a reference to the object.
+        """
         path = adv.path if isinstance(adv, BroadcastAdvertisement) else adv
 
         try:
@@ -52,6 +86,9 @@ class BlueZBroadcaster(AbstractAsyncContextManager):
             del self.advertisements[path]
 
     async def stop(self):
+        """
+        Stops this broadcaster. Cleans up any active broadcasts.
+        """
         await asyncio.gather(
             *[self.stop_broadcast(path) for path in self.advertisements.keys()]
         )
@@ -60,6 +97,14 @@ class BlueZBroadcaster(AbstractAsyncContextManager):
         await self.stop()
 
     async def broadcast(self, adv: BroadcastAdvertisement):
+        """
+        Start broadcasting the given advertisement.
+
+        :param adv: The reference to the advertisement object.
+        :raises ValueError: If a D-Bus object already exists on the given path.
+        :raises DBusError: If the given advertisement is invalid, or is already
+            registered with BlueZ.
+        """
         # TODO construct advertisement in here to ensure local_name
         assert adv._local_name == self.name, f"{adv.name} != {self.name}"
 
@@ -96,6 +141,13 @@ class BlueZBroadcaster(AbstractAsyncContextManager):
         self.advertisements[adv.path] = adv
 
     def is_broadcasting(self, adv: BroadcastAdvertisement | None = None) -> bool:
+        """
+        Checks whether this broadcaster is active.
+
+        :param adv: The reference to the advertisement object to check,
+            defaults to None (check if any broadcast is active).
+        :return: True if the given (or any) broadcast is active.
+        """
         if adv is not None:
             return adv.path in self.advertisements
         else:

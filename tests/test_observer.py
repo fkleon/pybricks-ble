@@ -6,6 +6,10 @@ from pb_ble.bluezdbus import (
 )
 
 
+def get_adapter1(adapter):
+    return adapter.get_interface("org.bluez.Adapter1")
+
+
 class TestPassiveBlueZObserver:
     @pytest_asyncio.fixture(autouse=True)
     async def require_passive_scan(sef, adapter_details, adapter_name):
@@ -35,6 +39,10 @@ class TestPassiveBlueZObserver:
         # THEN there should be no data
         assert data is None
 
+        # AND the bluetooth adapter should not be discovering (passive scan)
+        discovering = await get_adapter1(adapter).get_discovering()
+        assert discovering is False
+
 
 class TestActiveBlueZObserver:
     @pytest_asyncio.fixture()
@@ -59,3 +67,7 @@ class TestActiveBlueZObserver:
 
         # THEN there should be no data
         assert data is None
+
+        # AND the bluetooth adapter should be discovering (active scan)
+        discovering = await get_adapter1(adapter).get_discovering()
+        assert discovering is True

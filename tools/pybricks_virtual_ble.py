@@ -9,6 +9,7 @@ from async_timer.pacemaker import TimerPacemaker
 from pybricks import _common
 
 from pb_ble import get_virtual_ble
+from pb_ble.constants import ScanningMode
 
 
 async def observe(vble: _common.BLE, observe_channel: int, interval: float = 1.0):
@@ -36,7 +37,7 @@ async def broadcast(vble: _common.BLE, interval: float = 10.0):
 
 async def main():
     # observe config
-    scanning_mode = "passive"
+    scanning_mode: ScanningMode = "passive"
     observe_channel = 0
 
     # broadcast config

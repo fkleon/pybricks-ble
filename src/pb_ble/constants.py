@@ -1,4 +1,6 @@
-from typing import NamedTuple
+from __future__ import annotations
+
+from typing import Literal, NamedTuple, TypeAlias
 
 LEGO_CID = 0x0397
 """LEGO System A/S company identifier."""
@@ -6,11 +8,17 @@ LEGO_CID = 0x0397
 PYBRICKS_MAX_CHANNEL = 255  # uint8
 """Highest channel supported by Pybricks broadcast/observe messages"""
 
+ScanningMode: TypeAlias = Literal["active", "passive"]
+"""Supported scanning modes for observing broadcasts."""
+
 # Type aliases
-PybricksBroadcastValue = bool | int | float | str | bytes
-""" Type of a value that can be broadcast."""
-PybricksBroadcastData = PybricksBroadcastValue | tuple[PybricksBroadcastValue]
-""" Type of the broadcast data."""
+PybricksBroadcastValue: TypeAlias = bool | int | float | str | bytes
+"""Type of a value that can be broadcast."""
+
+PybricksBroadcastData: TypeAlias = (
+    PybricksBroadcastValue | tuple[PybricksBroadcastValue]
+)
+"""Type of the broadcast data."""
 
 
 class PybricksBroadcast(NamedTuple):

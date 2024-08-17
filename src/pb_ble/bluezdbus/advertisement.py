@@ -4,8 +4,8 @@ Advertisement API
 
 This module contains types associated with the BlueZ D-Bus advertisement api:
 
-- https://github.com/bluez/bluez/blob/5.75/doc/org.bluez.LEAdvertisement.rst
-- https://github.com/bluez/bluez/blob/5.75/doc/org.bluez.LEAdvertisingManager.rst
+- [org.bluez.LEAdvertisement](https://github.com/bluez/bluez/blob/5.75/doc/org.bluez.LEAdvertisement.rst)
+- [org.bluez.LEAdvertisingManager](https://github.com/bluez/bluez/blob/5.75/doc/org.bluez.LEAdvertisingManager.rst)
 """
 
 import logging
@@ -81,9 +81,7 @@ class Feature(Enum):
 
 class LEAdvertisement(ServiceInterface):
     """
-    Implementation of the org.bluez.LEAdvertisement1 D-Bus interface.
-
-    https://github.com/bluez/bluez/blob/5.75/doc/org.bluez.LEAdvertisement.rst
+    Implementation of the `org.bluez.LEAdvertisement1` D-Bus interface.
     """
 
     INTERFACE_NAME: str = "org.bluez.LEAdvertisement1"
@@ -127,11 +125,8 @@ class LEAdvertisement(ServiceInterface):
 
         This should be used by subclasses to opt-into experimental properties.
 
-        Args:
-            prop_names: List of D-Bus property names to enable.
-
-        Raises:
-            ValueError: If an unknown property was passed.
+        :param prop_names: List of D-Bus property names to enable.
+        :raises ValueError: If an unknown property was passed.
         """
         for prop_name in prop_names:
             prop: _Property | None = next(
@@ -153,11 +148,8 @@ class LEAdvertisement(ServiceInterface):
 
         This can be used by subclasses to opt-out of exposing certain properties.
 
-        Args:
-            prop_names: List of D-Bus property names to disable.
-
-        Raises:
-            ValueError: If an unknown property was passed.
+        :param prop_names: List of D-Bus property names to disable.
+        :raises ValueError: If an unknown property was passed.
         """
         for prop_name in prop_names:
             prop: _Property | None = next(
@@ -436,7 +428,8 @@ class BroadcastAdvertisement(LEAdvertisement):
             # set([Include.LOCAL_NAME]),
         )
 
-        self.on_release = on_release
+        self.on_release: Callable[[str], None] = on_release
+        """Callback function that is called when this advertisement is released by BlueZ."""
 
         # Disable properties that aren't needed for broadcasting
         self._disable_props(
@@ -481,10 +474,12 @@ class PybricksBroadcastAdvertisement(BroadcastAdvertisement):
 
     @property
     def channel(self) -> int:
+        """The channel of this broadcast message."""
         return self.index
 
     @property
     def message(self) -> PybricksBroadcastData | None:
+        """The data contained in this broadcast message."""
         if self.LEGO_CID in self._manufacturer_data:
             channel, value = decode_message(
                 self._manufacturer_data[self.LEGO_CID].value  # type: ignore
@@ -509,9 +504,7 @@ class PybricksBroadcastAdvertisement(BroadcastAdvertisement):
 
 class LEAdvertisingManager:
     """
-    Client implementation of the org.bluez.LEAdvertisementManager1 D-Bus interface.
-
-    https://github.com/bluez/bluez/blob/5.75/doc/org.bluez.LEAdvertisingManager.rst
+    Client implementation of the `org.bluez.LEAdvertisementManager1` D-Bus interface.
     """
 
     INTERFACE_NAME: str = "org.bluez.LEAdvertisingManager1"
@@ -524,48 +517,63 @@ class LEAdvertisingManager:
         if adapter is None and adv_manager is None:
             raise ValueError("adapter or adv_manager required")
 
-        self.adv_manager = adv_manager or adapter.get_interface(self.INTERFACE_NAME)  # type: ignore
+        self._adv_manager = adv_manager or adapter.get_interface(self.INTERFACE_NAME)  # type: ignore
 
     async def register_advertisement(
         self, adv: LEAdvertisement, options: dict | None = None
     ):
+        """
+        Registers an advertisement object to be sent over the LE Advertising channel.
+        The service must implement `org.bluez.LEAdvertisement1` interface.
+
+        :param adv: The advertisement service object.
+        :param options: Advertisement options, defaults to None.
+        :return: `None`
+        """
         options = options or {}
-        return await self.adv_manager.call_register_advertisement(adv.path, options)  # type: ignore
+        return await self._adv_manager.call_register_advertisement(adv.path, options)  # type: ignore
 
     @overload
     async def unregister_advertisement(self, adv: LEAdvertisement): ...
     @overload
     async def unregister_advertisement(self, adv: str): ...
     async def unregister_advertisement(self, adv):
+        """
+        Unregisters an advertisement that has been previously registered using `register_advertisement()`.
+        The object path parameter must match the same value that has been used on registration.
+
+        :param adv: The advertisement service object, or path.
+        :return: `None`
+        """
         if isinstance(adv, str):
-            return await self.adv_manager.call_unregister_advertisement(adv)  # type: ignore
+            return await self._adv_manager.call_unregister_advertisement(adv)  # type: ignore
         else:
-            return await self.adv_manager.call_unregister_advertisement(adv.path)  # type: ignore
+            return await self._adv_manager.call_unregister_advertisement(adv.path)  # type: ignore
 
     async def active_instances(self) -> int:
         """Number of active advertising instances."""
-        return await self.adv_manager.get_active_instances()  # type: ignore
+        return await self._adv_manager.get_active_instances()  # type: ignore
 
     async def supported_instances(self) -> int:
         """Number of available advertising instances."""
-        return await self.adv_manager.get_supported_instances()  # type: ignore
+        return await self._adv_manager.get_supported_instances()  # type: ignore
 
     async def supported_includes(self) -> list[Include]:
         """List of supported system includes."""
-        return await self.adv_manager.get_supported_includes()  # type: ignore
+        return await self._adv_manager.get_supported_includes()  # type: ignore
 
     async def supported_secondary_channels(self) -> list[SecondaryChannel]:
         """List of supported Secondary channels.
         Secondary channels can be used to advertise  with the corresponding PHY.
         """
-        return await self.adv_manager.get_supported_secondary_channels()  # type: ignore
+        return await self._adv_manager.get_supported_secondary_channels()  # type: ignore
 
     async def supported_capabilities(self) -> dict[Capability, Any]:
         """Enumerates Advertising-related controller capabilities useful to the client."""
-        return await self.adv_manager.get_supported_capabilities()  # type: ignore
+        return await self._adv_manager.get_supported_capabilities()  # type: ignore
 
     async def supported_features(self) -> list[Feature]:
         """List  of supported platform features.
         If no features are available on the platform, the SupportedFeatures array will be empty.
         """
-        return await self.adv_manager.get_supported_features()  # type: ignore
+        return await self._adv_manager.get_supported_features()  # type: ignore

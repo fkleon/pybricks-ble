@@ -5,7 +5,7 @@ This module contains a Pybricks-specific implementation of the BLE "Observer" ro
 import logging
 from contextlib import AbstractAsyncContextManager
 from struct import pack
-from typing import Literal, NamedTuple, Sequence
+from typing import NamedTuple, Sequence
 
 from bleak import AdvertisementData, BleakScanner, BLEDevice
 from bleak.assigned_numbers import AdvertisementDataType
@@ -13,7 +13,12 @@ from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 from bleak.backends.bluezdbus.scanner import BlueZDiscoveryFilters, BlueZScannerArgs
 from cachetools import TTLCache
 
-from ..constants import LEGO_CID, PYBRICKS_MAX_CHANNEL, PybricksBroadcastData
+from ..constants import (
+    LEGO_CID,
+    PYBRICKS_MAX_CHANNEL,
+    PybricksBroadcastData,
+    ScanningMode,
+)
 from ..messages import decode_message
 
 log = logging.getLogger(name=__name__)
@@ -31,24 +36,51 @@ class ObservedAdvertisement(NamedTuple):
 class BlueZPybricksObserver(AbstractAsyncContextManager):
     """
     A BLE observer backed by BlueZ.
-
     Keeps a cache of observed Pybricks messages.
+
+    The recommended use is as a context manager, which ensures that the
+    underlying BLE scanner is stopped when exiting the context:
+
+    ```python
+    async with BlueZPybricksObserver(channels=[1, 2, 3]) as observer:
+        # Observe for 10 seconds
+        await asyncio.sleep(10)
+        # Check results for channel 2
+        message = observer.observe(2)
+        print(message)
+    ```
     """
 
     def __init__(
         self,
-        scanning_mode: Literal["active", "passive"] = "passive",
+        scanning_mode: ScanningMode = "passive",
         channels: Sequence[int] | None = None,
         rssi_threshold: int | None = None,
         device_pattern: str | None = "Pybricks",
         message_ttl: int = 60,
     ):
+        """
+        Creates a new observer.
+
+        :param scanning_mode: The scanning mode to use, defaults to "passive".
+        :param channels: Channels to observe, defaults to None (all channels).
+        :param rssi_threshold: Minimum required signal strength of observed
+            broadcasts in dBm, defaults to None (no RSSI filtering).
+        :param device_pattern: Pattern that the device name of the sender must
+            start with, defaults to "Pybricks". Set to `None` to disable filtering.
+        :param message_ttl: Time in seconds to cache observed broadcasts for,
+            defaults to 60.
+        """
         self.channels = channels or []
+        """List of channels that this observer is monitoring."""
         self.rssi_threshold = rssi_threshold
+        """The configured RSSI threshold for broadcasts."""
         self.device_pattern = device_pattern
+        """The configured device name pattern match for broadcasts."""
         self.advertisements: TTLCache = TTLCache(
             maxsize=len(self.channels) or PYBRICKS_MAX_CHANNEL, ttl=message_ttl
         )
+        """Cache of observed broadcasts."""
 
         # Filters used for active scanning
         filters: BlueZDiscoveryFilters = BlueZDiscoveryFilters()
@@ -86,8 +118,8 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
             rssi_threshold,
         )
 
-        self.scanner = BleakScanner(
-            detection_callback=self.callback,
+        self._scanner = BleakScanner(
+            detection_callback=self._callback,
             scanning_mode=scanning_mode,
             bluez=BlueZScannerArgs(
                 filters=filters,
@@ -95,7 +127,29 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
             ),
         )
 
-    def callback(self, device: BLEDevice, ad: AdvertisementData):
+    def _callback(self, device: BLEDevice, ad: AdvertisementData):
+        """
+        @public
+        The callback function for detected BLE advertisements from the
+        scanner.
+
+        Performs filtering of advertisements, decodes the Pybricks
+        broadcast message contained in the advertisement, and stores
+        it in the broadcast cache.
+
+        Depending on the selected scanning mode, certain filters must
+        be applied here:
+
+        1. Filter advertisements based on the configured `rssi_threshold`
+            and `device_pattern` (required in "passive" mode).
+        2. Filter advertisements that contain invalid manufacturer data,
+            such as non-Pybricks advertisements (required in "active" mode).
+        4. Filter messages on the incorrect Pybricks channel (required in
+            "active" mode).
+
+        :param device: The device sending the advertisement.
+        :param ad: The advertisement data.
+        """
         if self.rssi_threshold is not None and ad.rssi < self.rssi_threshold:
             log.debug("Filtered AD due to RSSI below threshold: %i", ad.rssi)
             return
@@ -126,12 +180,19 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
         self.advertisements[channel] = ObservedAdvertisement(data, ad.rssi)
 
     def observe(self, channel: int) -> ObservedAdvertisement | None:
+        """
+        Retrieves the last observed data for a given channel.
+
+        :param channel: The channel to observe (0 to 255).
+        :return: The received data in the same format as it was sent, or `None`
+            if no recent data is available.
+        """
         return self.advertisements.get(channel, None)
 
     async def __aenter__(self):
         log.info("Observing on channels %s...", self.channels or "ALL")
-        await self.scanner.start()
+        await self._scanner.start()
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
-        await self.scanner.stop()
+        await self._scanner.stop()
