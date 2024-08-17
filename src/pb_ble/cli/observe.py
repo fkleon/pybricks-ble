@@ -49,6 +49,13 @@ async def observe(
     channels: Sequence[int],
     rssi_threshold: int,
 ):
+    """
+    Starts observing data. Prints received broadcasts to the console.
+
+    :param scanning_mode: The scanning mode to use.
+    :param channels: List of channels to listen on.
+    :param rssi_threshold: Minimum required signal strength in dBm.
+    """
     stop_event = asyncio.Event()
     async with BlueZPybricksObserver(
         scanning_mode=scanning_mode, channels=channels, rssi_threshold=rssi_threshold

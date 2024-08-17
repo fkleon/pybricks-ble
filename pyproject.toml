@@ -30,13 +30,16 @@ debug = ["bluetooth-data-tools ~= 1.15"]
 dev = [
     "async-timer ~= 1.1.6",
     "mypy ~= 1.11.1",
-    "pybricks-ble[debug]",
+    "pybricks-ble[debug,docs]",
     "pytest ~= 8.2",
     "pytest-asyncio ~= 0.24.0a1",
     "python-dbusmock @ git+https://github.com/martinpitt/python-dbusmock@d9893666bdf1cc35e7d4014a68ed15c2b666ed4e",
     "ruff ~= 0.5.2",
     "types-cachetools ~= 5.3",
     "types-setuptools",
+]
+docs = [
+    "pdoc ~= 14.6",
 ]
 
 [project.urls]

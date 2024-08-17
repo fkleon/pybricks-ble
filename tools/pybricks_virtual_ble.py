@@ -8,7 +8,8 @@ import random
 from async_timer.pacemaker import TimerPacemaker
 from pybricks import _common
 
-from pb_ble import ScanningMode, get_virtual_ble
+from pb_ble import get_virtual_ble
+from pb_ble.constants import ScanningMode
 
 
 async def observe(vble: _common.BLE, observe_channel: int, interval: float = 1.0):

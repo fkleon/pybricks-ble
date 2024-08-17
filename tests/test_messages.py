@@ -1,6 +1,7 @@
 import pytest
 
-from pb_ble import LEGO_CID, decode_message, encode_message, pack_pnp_id, unpack_pnp_id
+from pb_ble import LEGO_CID
+from pb_ble.messages import decode_message, encode_message, pack_pnp_id, unpack_pnp_id
 
 
 class TestPybricksBleDecodeMessage:

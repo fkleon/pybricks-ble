@@ -58,6 +58,14 @@ async def broadcast(
     channel: int,
     data: PybricksBroadcastData | None,
 ):
+    """
+    Starts broadcasting the given data.
+
+    :param device_name: Bluetooth device name to use for advertisements.
+    :param timeout: Time after which the advertisement is stopped. 0 to disable the timeout.
+    :param channel: Pybricks channel to broadcast on.
+    :param data: The data to broadcast.
+    """
     stop_event = asyncio.Event()
 
     bus: MessageBus = await MessageBus(bus_type=BusType.SYSTEM).connect()
