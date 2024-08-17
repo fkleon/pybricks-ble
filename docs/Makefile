@@ -14,9 +14,9 @@ help: ## Display this help message.
 	pip install -e '..[docs]'
 
 .PHONY: dev
-dev: .venv # Start locally hosted version of the documentation
-	pdoc --footer-text "$(FOOTER)" pb_ble
+dev: .venv ## Start locally hosted version of the documentation.
+	pdoc --footer-text "$(FOOTER)" --template-directory . pb_ble
 
 .PHONY: html
-html: .venv # Generate the documentation
-	pdoc --footer-text "$(FOOTER)" -o build/ pb_ble
+html: .venv ## Generate the documentation.
+	pdoc --footer-text "$(FOOTER)" --template-directory . -o build/ pb_ble

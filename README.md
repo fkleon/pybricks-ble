@@ -57,3 +57,13 @@ These tests interface with BlueZ directly, so will trigger actual Bluetooth adve
 ```sh
 make integration-test
 ```
+
+### Documentation
+
+A web version of the documentation is generated with [pdoc](https://pdoc.dev/).
+
+To run this locally:
+
+```sh
+make -C docs/ dev
+```
