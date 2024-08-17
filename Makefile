@@ -40,6 +40,3 @@ integration-test: export DISABLE_BLUEZ_MOCK=1
 integration-test: .venv
 	pytest
 
-.PHONY: pdoc
-pdoc: # Generate the documentation
-	pdoc src/pb_ble
