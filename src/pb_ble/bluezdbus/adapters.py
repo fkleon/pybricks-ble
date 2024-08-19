@@ -19,7 +19,10 @@ class AdapterDetailsExt(AdapterDetails):
     """
 
     advertise: bool
-    "Whether the adapter supports advertising."
+    """Whether the adapter supports advertising."""
+
+    powered: bool
+    """Whether the adapter is powered on."""
 
 
 async def get_all_adapter_details() -> dict[str, AdapterDetailsExt]:
@@ -28,9 +31,16 @@ async def get_all_adapter_details() -> dict[str, AdapterDetailsExt]:
 
     # Lookup additional details about each adapter
     for adapter, details in adapters.adapters.items():
-        bluez_details = adapters._bluez.adapter_details.get(adapter, {})  # type: ignore # _bluez is a private member
+        if not (bluez_details := adapters._bluez.adapter_details.get(adapter)):  # type: ignore # _bluez is a private member
+            # Adapter not known to BlueZ, ignore it.
+            continue
+
         advertise = "org.bluez.LEAdvertisingManager1" in bluez_details
-        adapters_ext[adapter] = AdapterDetailsExt(**details, advertise=advertise)
+        powered = bluez_details["org.bluez.Adapter1"]["Powered"]
+
+        adapters_ext[adapter] = AdapterDetailsExt(
+            **details, advertise=advertise, powered=powered
+        )
 
     return adapters_ext
 
