@@ -122,7 +122,6 @@ class BlueZBroadcaster(AbstractAsyncContextManager):
 
         log.info("Broadcasting: %s", adv)
 
-        # TODO: error handling
         try:
             self.bus.export(adv.path, adv)
         except ValueError:

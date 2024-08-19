@@ -21,6 +21,7 @@ parser.add_argument(
     nargs="*",
     help="Pybricks channels to observe, or all channels if not given.",
 )
+parser.add_argument("--adapter", required=False, help="Bluetooth adapter name")
 parser.add_argument(
     "--rssi",
     required=False,
@@ -48,6 +49,7 @@ parser.add_argument(
 
 
 async def observe(
+    adapter_name: str | None,
     scanning_mode: Literal["active", "passive"],
     channels: Sequence[int] | None,
     rssi_threshold: int | None,
@@ -56,6 +58,7 @@ async def observe(
     """
     Starts observing data. Prints received broadcasts to the console.
 
+    :param adapter_name: The Bluetooth adapter to use.
     :param scanning_mode: The scanning mode to use.
     :param channels: List of channels to listen on.
     :param rssi_threshold: Minimum required signal strength in dBm.
@@ -63,6 +66,7 @@ async def observe(
     """
     stop_event = asyncio.Event()
     async with BlueZPybricksObserver(
+        adapter_name=adapter_name,
         scanning_mode=scanning_mode,
         channels=channels,
         rssi_threshold=rssi_threshold,
@@ -80,6 +84,7 @@ def main():
     try:
         asyncio.run(
             observe(
+                adapter_name=args.adapter,
                 scanning_mode=args.mode,
                 channels=args.channels,
                 rssi_threshold=args.rssi,

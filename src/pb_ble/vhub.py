@@ -72,6 +72,7 @@ class VirtualBLE(_common.BLE, AsyncExitStack):
 
 
 async def get_virtual_ble(
+    adapter_name: str | None = None,
     device_name: str = VirtualBLE.DEFAULT_DEVICE_NAME,
     broadcast_channel: int = 0,
     observe_channels: Sequence[int] | None = None,
@@ -99,6 +100,8 @@ async def get_virtual_ble(
         await asyncio.sleep(10)
     ```
 
+    :param adapter_name: The Bluetooth adapter to use, defaults to None
+        (auto-discover default device).
     :param device_name: The name of the hub. This may be used as local name
         in the BLE advertisement data, defaults to `VirtualBLE.DEFAULT_DEVICE_NAME`.
     :param broadcast_channel: A value from 0 to 255 indicating which channel
@@ -119,11 +122,18 @@ async def get_virtual_ble(
         BLE interface.
     """
     bus: MessageBus = await MessageBus(bus_type=BusType.SYSTEM).connect()
-    name, details = await get_adapter_details()
-    adapter: ProxyObject = await get_adapter(bus, name)
+
+    # Find given adapter or default adapter
+    adapter_name, details = (
+        await get_adapter_details()
+        if adapter_name is None
+        else await get_adapter_details(adapter_name)
+    )
+    adapter: ProxyObject = await get_adapter(bus, adapter_name)
 
     broadcaster = BlueZBroadcaster(bus=bus, adapter=adapter, name=device_name)
     observer = BlueZPybricksObserver(
+        adapter_name=adapter_name,
         scanning_mode=scanning_mode,
         channels=observe_channels,
         device_pattern=device_filter,
