@@ -53,21 +53,24 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
 
     def __init__(
         self,
+        adapter_name: str | None = None,
         scanning_mode: ScanningMode = "passive",
         channels: Sequence[int] | None = None,
         rssi_threshold: int | None = None,
-        device_pattern: str | None = "Pybricks",
+        device_pattern: str | None = None,
         message_ttl: int = 60,
     ):
         """
         Creates a new observer.
 
+        :param adapter_name: The Bluetooth adapter to use for scanning,
+            defaults to `None` (auto-discover default device).
         :param scanning_mode: The scanning mode to use, defaults to "passive".
         :param channels: Channels to observe, defaults to None (all channels).
         :param rssi_threshold: Minimum required signal strength of observed
             broadcasts in dBm, defaults to None (no RSSI filtering).
         :param device_pattern: Pattern that the device name of the sender must
-            start with, defaults to "Pybricks". Set to `None` to disable filtering.
+            start with, defaults to `None` (no name filtering).
         :param message_ttl: Time in seconds to cache observed broadcasts for,
             defaults to 60.
         """
@@ -112,7 +115,7 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
             ]
 
         log.debug(
-            "Observer init: scanning_mode=%s, device_pattern=%s, rssi_threshold=%i",
+            "Observer init: scanning_mode=%s, device_pattern=%s, rssi_threshold=%s",
             scanning_mode,
             device_pattern,
             rssi_threshold,
@@ -125,6 +128,7 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
                 filters=filters,
                 or_patterns=or_patterns,
             ),
+            adapter=adapter_name,
         )
 
     def _callback(self, device: BLEDevice, ad: AdvertisementData):

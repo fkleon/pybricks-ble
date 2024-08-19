@@ -23,7 +23,7 @@ To broadcast for an unlimited time, use `--timeout 0`.
 ### Usage
 
 ```
-usage: pb_broadcast [-h] [--name NAME] [--timeout TIMEOUT] [--debug] data [data ...]
+usage: pb_broadcast [-h] [--adapter ADAPTER] [--name NAME] [--timeout TIMEOUT] [--debug] data [data ...]
 
 Send Pybricks BLE broadcasts
 
@@ -32,6 +32,7 @@ positional arguments:
 
 options:
   -h, --help         show this help message and exit
+  --adapter ADAPTER  Bluetooth adapter name (default: hci0)
   --name NAME        Bluetooth device name to use for advertisements (default: pb_vhub)
   --timeout TIMEOUT  Broadcast timeout in seconds (default: 10)
   --debug            Enable debug logging (default: False)
@@ -57,7 +58,7 @@ To enable active scanning, use `--mode active`.
 ### Usage
 
 ```
-usage: pb_observe [-h] [--rssi [-120 to 0]] [--mode {active,passive}] [--debug] [N [0 to 255] ...]
+usage: pb_observe [-h] [--adapter ADAPTER] [--rssi [-120 to 0]] [--pattern PATTERN] [--mode {active,passive}] [--debug] [N [0 to 255] ...]
 
 Observe Pybricks BLE broadcasts
 
@@ -66,7 +67,9 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
+  --adapter ADAPTER     Bluetooth adapter name (default: None)
   --rssi [-120 to 0]    RSSI threshold (default: None)
+  --pattern PATTERN     Device name pattern filter (default: Pybricks)
   --mode {active,passive}
                         BLE scanning mode (default: passive)
   --debug               Enable debug logging (default: False)
@@ -79,7 +82,9 @@ import datetime
 import logging
 import sys
 
-if __name__ == "__main__":
+
+def setup_cli_logging():
+    """Configure logging for the CLI tools."""
     logging.basicConfig(
         stream=sys.stdout,
         level=logging.INFO,
@@ -94,5 +99,6 @@ if __name__ == "__main__":
         .astimezone()
         .isoformat(sep="T", timespec="milliseconds")
     )
+
 
 __all__ = ()

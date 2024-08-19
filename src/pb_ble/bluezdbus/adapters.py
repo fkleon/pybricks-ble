@@ -61,7 +61,6 @@ async def get_adapter(
             f"Bluetooth adapter '{name}' does not support broadcasting BLE advertisements!"
         )
 
-    # TODO: Get path from BlueZ
     adapter_path = f"/org/bluez/{name}"
     adapter_node = await bus.introspect(defs.BLUEZ_SERVICE, adapter_path)
     adapter: ProxyObject = bus.get_proxy_object(
