@@ -112,7 +112,7 @@ async def get_virtual_ble(
         - Active scanning is provided as a well-supported fallback.
         It may negatively impact the power consumption of nearby BLE devices.
     :param device_filter: Provides a mechanism to filter observed broadcasts
-        based on the custom name of the sending Pybricks Hub, defaults to None (no filter TODO: check).
+        based on the custom name of the sending Pybricks Hub, defaults to None (no filter).
         For example, set this to `Pybricks` to receive only broadcasts from Hubs
         that have a name starting with "Pybricks".
     :return: A `VirtualBLE` object which is loosely adhering to the Pybricks Hub

@@ -56,7 +56,7 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
         scanning_mode: ScanningMode = "passive",
         channels: Sequence[int] | None = None,
         rssi_threshold: int | None = None,
-        device_pattern: str | None = "Pybricks",
+        device_pattern: str | None = None,
         message_ttl: int = 60,
     ):
         """
@@ -67,7 +67,7 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
         :param rssi_threshold: Minimum required signal strength of observed
             broadcasts in dBm, defaults to None (no RSSI filtering).
         :param device_pattern: Pattern that the device name of the sender must
-            start with, defaults to "Pybricks". Set to `None` to disable filtering.
+            start with, defaults to `None` (no name filtering).
         :param message_ttl: Time in seconds to cache observed broadcasts for,
             defaults to 60.
         """

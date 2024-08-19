@@ -57,7 +57,7 @@ To enable active scanning, use `--mode active`.
 ### Usage
 
 ```
-usage: pb_observe [-h] [--rssi [-120 to 0]] [--mode {active,passive}] [--debug] [N [0 to 255] ...]
+usage: pb_observe [-h] [--rssi [-120 to 0]] [--pattern PATTERN] [--mode {active,passive}] [--debug] [N [0 to 255] ...]
 
 Observe Pybricks BLE broadcasts
 
@@ -67,6 +67,7 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   --rssi [-120 to 0]    RSSI threshold (default: None)
+  --pattern PATTERN     Device name pattern filter (default: Pybricks)
   --mode {active,passive}
                         BLE scanning mode (default: passive)
   --debug               Enable debug logging (default: False)

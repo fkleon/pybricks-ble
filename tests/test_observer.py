@@ -25,7 +25,10 @@ class TestPassiveBlueZObserver:
 
     def test_create_observer(self, message_bus):
         observer = BlueZPybricksObserver(
-            scanning_mode="passive", channels=[0], rssi_threshold=-100
+            scanning_mode="passive",
+            channels=[0],
+            rssi_threshold=-100,
+            device_pattern="Pybricks",
         )
         assert observer is not None
         assert observer.channels == [0]

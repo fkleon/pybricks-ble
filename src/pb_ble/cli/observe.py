@@ -30,6 +30,9 @@ parser.add_argument(
     help="RSSI threshold",
 )
 parser.add_argument(
+    "--pattern", required=False, default="Pybricks", help="Device name pattern filter"
+)
+parser.add_argument(
     "--mode",
     required=False,
     choices=["active", "passive"],
@@ -46,8 +49,9 @@ parser.add_argument(
 
 async def observe(
     scanning_mode: Literal["active", "passive"],
-    channels: Sequence[int],
-    rssi_threshold: int,
+    channels: Sequence[int] | None,
+    rssi_threshold: int | None,
+    device_pattern: str | None,
 ):
     """
     Starts observing data. Prints received broadcasts to the console.
@@ -55,10 +59,14 @@ async def observe(
     :param scanning_mode: The scanning mode to use.
     :param channels: List of channels to listen on.
     :param rssi_threshold: Minimum required signal strength in dBm.
+    :param device_pattern: Device name pattern filter.
     """
     stop_event = asyncio.Event()
     async with BlueZPybricksObserver(
-        scanning_mode=scanning_mode, channels=channels, rssi_threshold=rssi_threshold
+        scanning_mode=scanning_mode,
+        channels=channels,
+        rssi_threshold=rssi_threshold,
+        device_pattern=device_pattern,
     ):
         await stop_event.wait()
 
@@ -75,6 +83,7 @@ def main():
                 scanning_mode=args.mode,
                 channels=args.channels,
                 rssi_threshold=args.rssi,
+                device_pattern=args.pattern,
             )
         )
     except KeyboardInterrupt:
