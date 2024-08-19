@@ -115,7 +115,7 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
             ]
 
         log.debug(
-            "Observer init: scanning_mode=%s, device_pattern=%s, rssi_threshold=%i",
+            "Observer init: scanning_mode=%s, device_pattern=%s, rssi_threshold=%s",
             scanning_mode,
             device_pattern,
             rssi_threshold,

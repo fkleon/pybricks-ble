@@ -9,6 +9,8 @@ from typing import Literal, Sequence
 
 from pb_ble.bluezdbus import BlueZPybricksObserver
 
+from . import setup_cli_logging
+
 parser = argparse.ArgumentParser(
     prog="pb_observe",
     description="Observe Pybricks BLE broadcasts",
@@ -76,6 +78,7 @@ async def observe(
 
 
 def main():
+    setup_cli_logging()
     args = parser.parse_args()
 
     if args.debug:

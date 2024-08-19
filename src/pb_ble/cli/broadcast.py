@@ -17,6 +17,8 @@ from pb_ble.bluezdbus import (
     get_adapter,
 )
 
+from . import setup_cli_logging
+
 parser = argparse.ArgumentParser(
     prog="pb_broadcast",
     description="Send Pybricks BLE broadcasts",
@@ -87,6 +89,7 @@ async def broadcast(
 
 
 def main():
+    setup_cli_logging()
     args = parser.parse_args()
 
     if args.debug:

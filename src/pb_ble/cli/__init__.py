@@ -82,7 +82,9 @@ import datetime
 import logging
 import sys
 
-if __name__ == "__main__":
+
+def setup_cli_logging():
+    """Configure logging for the CLI tools."""
     logging.basicConfig(
         stream=sys.stdout,
         level=logging.INFO,
@@ -97,5 +99,6 @@ if __name__ == "__main__":
         .astimezone()
         .isoformat(sep="T", timespec="milliseconds")
     )
+
 
 __all__ = ()
