@@ -100,14 +100,14 @@ async def get_virtual_ble(
         await asyncio.sleep(10)
     ```
 
-    :param adapter_name: The Bluetooth adapter to use, defaults to None
+    :param adapter_name: The Bluetooth adapter to use, defaults to `None`
         (auto-discover default device).
     :param device_name: The name of the hub. This may be used as local name
         in the BLE advertisement data, defaults to `VirtualBLE.DEFAULT_DEVICE_NAME`.
     :param broadcast_channel: A value from 0 to 255 indicating which channel
         `VirtualBLE.broadcast()` will use, defaults to 0.
-    :param observe_channels: A list of channels to listen to when
-        `VirtualBLE.observe()` is called, defaults to None (no channels).
+    :param observe_channels: A list of channels to listen to for use
+        with `VirtualBLE.observe()`, defaults to `None` (all channels).
     :param scanning_mode: The scanning mode to use for observing brodcasts,
         defaults to `passive`.
         - Passive scanning is the default and recommended mode.
@@ -115,7 +115,7 @@ async def get_virtual_ble(
         - Active scanning is provided as a well-supported fallback.
         It may negatively impact the power consumption of nearby BLE devices.
     :param device_filter: Provides a mechanism to filter observed broadcasts
-        based on the custom name of the sending Pybricks Hub, defaults to None (no filter).
+        based on the custom name of the sending Pybricks Hub, defaults to `None` (no filter).
         For example, set this to `Pybricks` to receive only broadcasts from Hubs
         that have a name starting with "Pybricks".
     :return: A `VirtualBLE` object which is loosely adhering to the Pybricks Hub
