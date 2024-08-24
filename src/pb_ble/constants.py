@@ -5,6 +5,8 @@ from typing import Literal, NamedTuple, TypeAlias
 LEGO_CID = 0x0397
 """LEGO System A/S company identifier."""
 
+PYBRICKS_MIN_CHANNEL = 0
+"""Lowest channel supported by Pybricks broadcast/observe messages"""
 PYBRICKS_MAX_CHANNEL = 255  # uint8
 """Highest channel supported by Pybricks broadcast/observe messages"""
 

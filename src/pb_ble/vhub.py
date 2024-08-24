@@ -13,7 +13,11 @@ from .bluezdbus import (
     get_adapter,
     get_adapter_details,
 )
-from .constants import ScanningMode
+from .constants import (
+    PYBRICKS_MAX_CHANNEL,
+    PYBRICKS_MIN_CHANNEL,
+    ScanningMode,
+)
 
 
 class VirtualBLE(_common.BLE, AsyncExitStack):
@@ -32,6 +36,14 @@ class VirtualBLE(_common.BLE, AsyncExitStack):
         broadcast_channel: int,
         device_version: str = DEFAULT_DEVICE_VERSION,
     ):
+        if (
+            not isinstance(broadcast_channel, int)
+            or PYBRICKS_MIN_CHANNEL < broadcast_channel > PYBRICKS_MAX_CHANNEL
+        ):
+            raise ValueError(
+                f"Broadcast channel must be integer from {PYBRICKS_MIN_CHANNEL} to {PYBRICKS_MAX_CHANNEL}."
+            )
+
         super(AsyncExitStack, self).__init__()
 
         self._device_version = device_version
