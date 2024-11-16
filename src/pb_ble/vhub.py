@@ -120,7 +120,7 @@ async def get_virtual_ble(
         `VirtualBLE.broadcast()` will use, defaults to 0.
     :param observe_channels: A list of channels to listen to for use
         with `VirtualBLE.observe()`, defaults to `None` (all channels).
-    :param scanning_mode: The scanning mode to use for observing brodcasts,
+    :param scanning_mode: The scanning mode to use for observing broadcasts,
         defaults to `passive`.
         - Passive scanning is the default and recommended mode.
         However it is not supported by all devices.
