@@ -81,7 +81,9 @@ def encode_message(channel: int = 0, *values: PybricksBroadcastValue) -> bytes:
 
         # max size is 27 bytes: 26 byte payload + 1 byte channel
         if len(encoded_data) > OBSERVED_DATA_MAX_SIZE + 1:
-            raise ValueError("payload is restricted to 26 bytes")
+            raise ValueError(
+                f"Payload too large: {len(encoded_data)} bytes (maximum is {OBSERVED_DATA_MAX_SIZE} bytes)"
+            )
 
     return bytes(encoded_data)
 
@@ -222,7 +224,7 @@ def _decode_next_value(
         return idx + size, val
     else:
         # unsupported data type
-        raise ValueError(data_type)
+        raise ValueError(f"Unsupported data type: {data_type}")
 
 
 def _encode_value(
@@ -274,7 +276,7 @@ def _encode_value(
         encoded_val = val
     else:
         # unsupported data type
-        raise ValueError(type(val))
+        raise ValueError(f"Unsupported data type: {type(val)}")
 
     header = (data_type << 5) | (size & 0x1F)
     return header, encoded_val

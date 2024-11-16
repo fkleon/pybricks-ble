@@ -16,6 +16,7 @@ from cachetools import TTLCache
 from ..constants import (
     LEGO_CID,
     PYBRICKS_MAX_CHANNEL,
+    PYBRICKS_MIN_CHANNEL,
     PybricksBroadcastData,
     ScanningMode,
 )
@@ -76,6 +77,16 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
         """
         self.channels = channels or []
         """List of channels that this observer is monitoring."""
+
+        for channel in self.channels:
+            if (
+                not isinstance(channel, int)
+                or PYBRICKS_MIN_CHANNEL < channel > PYBRICKS_MAX_CHANNEL
+            ):
+                raise ValueError(
+                    f"Observe channel must be list of integers from {PYBRICKS_MIN_CHANNEL} to {PYBRICKS_MAX_CHANNEL}."
+                )
+
         self.rssi_threshold = rssi_threshold
         """The configured RSSI threshold for broadcasts."""
         self.device_pattern = device_pattern
@@ -191,6 +202,9 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
         :return: The received data in the same format as it was sent, or `None`
             if no recent data is available.
         """
+        if self.channels and channel not in self.channels:
+            raise ValueError(f"Channel {channel} not allocated.")
+
         return self.advertisements.get(channel, None)
 
     async def __aenter__(self):
