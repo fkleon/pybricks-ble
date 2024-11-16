@@ -7,17 +7,17 @@ help: ## Display this help message.
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 
-.venv: pyproject.toml  ## Create the python virtual environment.
+.venv: pyproject.toml ## Create the python virtual environment.
 	/usr/bin/python3 -m venv --clear --upgrade-deps --system-site-packages .venv
 	pip install -e '.[dev]'
 
 .PHONY: lint
-lint: .venv  ## Lint the code base.
+lint: .venv ## Lint the code base.
 	ruff check --diff
 	ruff format --diff
 
 .PHONY: format
-format: .venv  ## Format the code base.
+format: .venv ## Format the code base.
 	ruff check . --fix
 	ruff format .
 
@@ -35,8 +35,7 @@ test: .venv ## Run the unit tests against a BlueZ mock service
 	pytest
 
 .PHONY: integration-test
-make integration-test: ## Run the integration tests against the real BlueZ service
 integration-test: export DISABLE_BLUEZ_MOCK=1
-integration-test: .venv
+integration-test: .venv ## Run the integration tests against the real BlueZ service
 	pytest
 
