@@ -12,9 +12,9 @@ Based on:
 
 from enum import IntEnum
 from struct import pack, unpack, unpack_from
-from typing import Literal, Tuple
+from typing import Literal, Tuple, cast
 
-from .constants import PybricksBroadcast, PybricksBroadcastValue
+from .constants import PybricksBroadcast, PybricksBroadcastData, PybricksBroadcastValue
 
 
 def decode_message(
@@ -45,9 +45,12 @@ def decode_message(
             decoded_data.append(val)
 
     if single_object:
-        return PybricksBroadcast(channel, decoded_data[0])
+        decoded_value: PybricksBroadcastValue = decoded_data[0]
+        return PybricksBroadcast(channel, (decoded_value,))
     else:
-        return PybricksBroadcast(channel, tuple(decoded_data))  # type: ignore # https://github.com/python/mypy/issues/7509
+        return PybricksBroadcast(
+            channel, cast(PybricksBroadcastData, tuple(decoded_data))
+        )
 
 
 def encode_message(channel: int = 0, *values: PybricksBroadcastValue) -> bytes:
