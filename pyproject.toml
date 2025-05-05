@@ -21,7 +21,7 @@ dependencies = [
     "bluetooth-adapters ~= 0.16",
     "cachetools ~= 5.3",
     "dbus-fast ~= 2.15",
-    "pybricks ~= 3.5.0",
+    "pybricks ~= 3.6.0",
 ]
 
 [dependency-groups]
