@@ -1,6 +1,6 @@
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,10 +9,9 @@ version = "0.0.0" # version is currently unused but a required metadata field
 authors = [{ name = "Frederik Leonhardt", email = "frederik@leonhardt.co.nz" }]
 description = "Communicate with Pybricks devices using BLE data broadcasting"
 requires-python = ">=3.10"
-license = { text = "GNU General Public License v3 (GPLv3)" }
+license = "GPL-3.0-or-later"
 classifiers = [
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Topic :: Communications",
     "Topic :: Software Development :: Embedded Systems",
 ]
