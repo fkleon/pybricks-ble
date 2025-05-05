@@ -1,6 +1,6 @@
 import sys
 from contextlib import AsyncExitStack
-from typing import ClassVar, Optional, Sequence, Tuple, Union
+from typing import ClassVar, Optional, Sequence, Tuple, Union, cast
 
 from dbus_fast.aio import MessageBus, ProxyObject
 from dbus_fast.constants import BusType
@@ -16,6 +16,8 @@ from .bluezdbus import (
 from .constants import (
     PYBRICKS_MAX_CHANNEL,
     PYBRICKS_MIN_CHANNEL,
+    PybricksBroadcastData,
+    PybricksBroadcastValue,
     ScanningMode,
 )
 
@@ -61,13 +63,15 @@ class VirtualBLE(_common.BLE, AsyncExitStack):
                 raise
         return self
 
-    async def broadcast(self, data: Union[bool, int, float, str, bytes]) -> None:
-        if data is None:
+    async def broadcast(self, *data: PybricksBroadcastValue | None) -> None:  # type: ignore [override]
+        if len(data) == 0:
+            raise ValueError("Broadcast must be a value or tuple.")
+        if None in data:
             await self._broadcaster.stop_broadcast(self._adv)
         else:
             if not self._broadcaster.is_broadcasting(self._adv):
                 await self._broadcaster.broadcast(self._adv)
-            self._adv.message = data
+            self._adv.message = cast(PybricksBroadcastData, tuple(data))
 
     def observe(
         self, channel: int
