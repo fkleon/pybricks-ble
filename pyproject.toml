@@ -45,6 +45,12 @@ Repository = "https://github.com/fkleon/pybricks-ble"
 pb_broadcast = "pb_ble.cli.broadcast:main"
 pb_observe = "pb_ble.cli.observe:main"
 
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+check_untyped_defs = true
+exclude = ["build/"]
+
 [tool.pytest.ini_options]
 addopts = ["--import-mode=importlib"]
 asyncio_mode = "auto"

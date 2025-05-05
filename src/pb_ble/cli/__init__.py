@@ -92,7 +92,7 @@ def setup_cli_logging():
     )
 
     # ISO8601 dateformat for logging including milliseconds
-    logging.Formatter.formatTime = (
+    logging.Formatter.formatTime = (  # type: ignore [method-assign]
         lambda self, record, datefmt=None: datetime.datetime.fromtimestamp(
             record.created, datetime.timezone.utc
         )

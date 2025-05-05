@@ -23,12 +23,7 @@ format: .venv ## Format the code base.
 
 .PHONY: type
 typecheck: .venv ## Type-check the code base.
-	mypy \
-		--disable-error-code=method-assign \
-		--ignore-missing-imports \
-		--check-untyped-defs \
-		--exclude build/ \
-		.
+	mypy .
 
 .PHONY: test
 test: .venv ## Run the unit tests against a BlueZ mock service
