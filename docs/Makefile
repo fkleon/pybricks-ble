@@ -15,7 +15,7 @@ help: ## Display this help message.
 
 .PHONY: dev
 dev: .venv ## Start locally hosted version of the documentation.
-	pdoc --footer-text "$(FOOTER)" --template-directory . pb_ble
+	pdoc --footer-text "$(FOOTER)" --template-directory . --no-browser pb_ble
 
 .PHONY: html
 html: .venv ## Generate the documentation.
