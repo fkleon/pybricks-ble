@@ -9,7 +9,7 @@ help: ## Display this help message.
 
 .venv: pyproject.toml ## Create the python virtual environment.
 	/usr/bin/python3 -m venv --clear --upgrade-deps --system-site-packages .venv
-	pip install -e '.[dev]'
+	pip install --group dev -e .
 
 .PHONY: lint
 lint: .venv ## Lint the code base.

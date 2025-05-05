@@ -11,7 +11,7 @@ help: ## Display this help message.
 
 .venv: ../pyproject.toml ## Create the python virtual environment.
 	/usr/bin/python3 -m venv --clear --upgrade-deps .venv
-	pip install -e '..[docs]'
+	pip install --group '../pyproject.toml:docs' -e ..
 
 .PHONY: dev
 dev: .venv ## Start locally hosted version of the documentation.
