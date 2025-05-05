@@ -83,7 +83,8 @@ class BlueZBroadcaster(AbstractAsyncContextManager):
             pass
         finally:
             self.bus.unexport(path)
-            del self.advertisements[path]
+            if path in self.advertisements:
+                del self.advertisements[path]
 
     async def stop(self):
         """
@@ -114,7 +115,8 @@ class BlueZBroadcaster(AbstractAsyncContextManager):
         def release_advertisement(path):
             try:
                 self.bus.unexport(path)
-                del self.advertisements[path]
+                if path in self.advertisements:
+                    del self.advertisements[path]
             finally:
                 on_release(path)
 

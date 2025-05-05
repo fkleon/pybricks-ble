@@ -5,6 +5,7 @@ from pb_ble.messages import decode_message, encode_message, pack_pnp_id, unpack_
 
 
 class TestPybricksBleDecodeMessage:
+    # TODO: Check behaviour against reference implementation
     def test_decode_message_single_object(self):
         # channel 200
         # single object marker
@@ -13,9 +14,10 @@ class TestPybricksBleDecodeMessage:
         channel, data = decode_message(message)
 
         assert channel == 200
-        assert not isinstance(data, tuple)
+        assert isinstance(data, tuple)
+        assert len(data) == 1
 
-        assert data == 5
+        assert data[0] == 5
 
     # TODO: Check behaviour against reference implementation
     def test_decode_message_single_object_tuple(self):
