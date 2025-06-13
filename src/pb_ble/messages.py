@@ -102,9 +102,14 @@ def unpack_pnp_id(data: bytes) -> Tuple[Literal["BT", "USB"], int, int, int]:
     :return: Tuple containing the vendor ID type (`BT` or `USB`), the vendor
         ID, the product ID and the product revision.
     """
+    vid_type: int
+    vid: int
+    pid: int
+    rev: int
+
     vid_type, vid, pid, rev = unpack("<BHHH", data)
-    vid_type = "BT" if vid_type else "USB"
-    return vid_type, vid, pid, rev
+
+    return "BT" if vid_type else "USB", vid, pid, rev
 
 
 def pack_pnp_id(

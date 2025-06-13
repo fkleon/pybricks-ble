@@ -28,7 +28,7 @@ dependencies = [
 debug = ["bluetooth-data-tools ~= 1.15"]
 dev = [
     "async-timer ~= 1.1.6",
-    "mypy ~= 1.15.0",
+    "mypy ~= 1.16.0",
     "pytest ~= 8.3",
     "pytest-asyncio ~= 1.0.0",
     "python-dbusmock ~= 0.34.3",
