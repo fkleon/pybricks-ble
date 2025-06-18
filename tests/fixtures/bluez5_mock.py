@@ -1,8 +1,8 @@
 import sys
 import unittest.mock
 
-import dbus
 import pytest
+from dbus.proxies import ProxyObject
 from dbusmock import SpawnedMock
 from dbusmock.testcase import PrivateDBus
 
@@ -19,7 +19,7 @@ def pytest_runtest_setup(item) -> None:
 
 
 @pytest.fixture
-def bluez_mock(dbusmock_system: PrivateDBus) -> YieldFixture[dbus.proxies.ProxyObject]:
+def bluez_mock(dbusmock_system: PrivateDBus) -> YieldFixture[ProxyObject]:
     template = "bluez5"
     parameters = {
         "advertise": True,
@@ -34,9 +34,7 @@ def bluez_mock(dbusmock_system: PrivateDBus) -> YieldFixture[dbus.proxies.ProxyO
 
 
 @pytest.fixture(autouse=True)
-def adapter_mock(
-    bluez_mock: dbus.proxies.ProxyObject, adapter_name: str
-) -> YieldFixture[str]:
+def adapter_mock(bluez_mock: ProxyObject, adapter_name: str) -> YieldFixture[str]:
     device_name = adapter_name
 
     # Mock out the DBus adapter
