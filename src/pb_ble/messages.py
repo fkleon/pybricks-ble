@@ -10,11 +10,14 @@ Based on:
 
 """
 
+import logging
 from enum import IntEnum
 from struct import pack, unpack, unpack_from
 from typing import Literal, Tuple, cast
 
 from .constants import PybricksBroadcast, PybricksBroadcastData, PybricksBroadcastValue
+
+logger = logging.getLogger(__name__)
 
 
 def decode_message(
@@ -30,18 +33,23 @@ def decode_message(
         or a tuple.
     """
 
+    logger.debug(f"decoding[{len(data)}]: {data!r}")
+
     # idx 0 is the channel
     channel: int = unpack_from("<B", data)[0]  # uint8
+    logger.debug(f"channel: {channel}")
     # idx 1 is the message start
     idx = 1
-    decoded_data = []
+    decoded_data: list[PybricksBroadcastValue] = []
     single_object = False
 
     while idx < len(data):
         idx, val = _decode_next_value(idx, data)
         if val is None:
+            logger.debug(f"data[{len(decoded_data)}]: SINGLE_OBJECT marker")
             single_object = True
         else:
+            logger.debug(f"data[{len(decoded_data)}] of {type(val)!s:<15}: {val!r}")
             decoded_data.append(val)
 
     if single_object:
@@ -66,6 +74,7 @@ def encode_message(channel: int = 0, *values: PybricksBroadcastValue) -> bytes:
 
     # idx 0 is the channel
     encoded_channel = pack("<B", channel)
+    logger.debug(f"channel: {channel} -> {encoded_channel!r}")
 
     # idx 1 is the message start
     encoded_data = bytearray(encoded_channel)
@@ -73,10 +82,14 @@ def encode_message(channel: int = 0, *values: PybricksBroadcastValue) -> bytes:
     if len(values) == 1:
         # set SINGLE_OBJECT marker
         header = PybricksBleBroadcastDataType.SINGLE_OBJECT << 5
+        logger.debug(f"data[{len(encoded_data)}]: SINGLE_OBJECT marker")
         encoded_data.append(header)
 
     for val in values:
         header, encoded_val = _encode_value(val)
+        logger.debug(
+            f"data[{len(encoded_data)}] of {type(val)!s}: {val!r} -> ({header!r}, {encoded_val!r})"
+        )
         encoded_data.append(header)
 
         if encoded_val is not None:
@@ -88,7 +101,9 @@ def encode_message(channel: int = 0, *values: PybricksBroadcastValue) -> bytes:
                 f"Payload too large: {len(encoded_data)} bytes (maximum is {OBSERVED_DATA_MAX_SIZE} bytes)"
             )
 
-    return bytes(encoded_data)
+    message = bytes(encoded_data)
+    logger.debug(f"encoded[{len(message)}]: {message!r}")
+    return message
 
 
 def unpack_pnp_id(data: bytes) -> Tuple[Literal["BT", "USB"], int, int, int]:
