@@ -13,7 +13,10 @@ To use the Bluetooth Low Energy (BLE) radio features of this library, you need:
 - a BLE-capable Bluetooth adapter.
 - a device running Linux with BlueZ and D-Bus (e.g. Ubuntu 20.04 or newer).
 
-📝 Find out more in the [documentation](https://portfolio.leonhardt.co.nz/pybricks-ble)!
+### How to use this?
+
+- Find out more in the [📝 documentation](https://portfolio.leonhardt.co.nz/pybricks-ble)!
+- Check out the [🧑‍💻 CLI usage examples](https://portfolio.leonhardt.co.nz/pybricks-ble/pb_ble/cli.html) or [🔧 programmatic usage example](./tools/pybricks_virtual_ble.py).
 
 ### Alternatives
 
@@ -29,8 +32,8 @@ A `Makefile` is provided for convenience. Running one of the provided targets wi
 
 Alternatively, use `pip` for an editable installation of this library:
 
-```
-pip install -e '.[dev]'
+```sh
+pip install --group dev -e .
 ```
 
 ### Testing
