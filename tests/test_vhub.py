@@ -18,17 +18,17 @@ class TestVirtualBLE:
         assert ble is not None
         assert not ble._broadcaster.is_broadcasting()
 
-    async def test_observe(self):
+    async def test_observe_none(self):
         ble = await get_virtual_ble(broadcast_channel=1, observe_channels=[2])
         data = ble.observe(2)
         assert data is None
         assert not ble._broadcaster.is_broadcasting()
 
-    async def test_broadcast(self):
+    async def test_broadcast_single(self):
         ble = await get_virtual_ble(broadcast_channel=1, observe_channels=[2])
         await ble.broadcast(42)
         assert ble._broadcaster.is_broadcasting()
-        assert ble._adv.message == (42,)
+        assert ble._adv.message == 42
 
     async def test_broadcast_multiple(self):
         ble = await get_virtual_ble(broadcast_channel=1, observe_channels=[2])

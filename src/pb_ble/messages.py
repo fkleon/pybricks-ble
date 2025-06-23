@@ -54,7 +54,7 @@ def decode_message(
 
     if single_object:
         decoded_value: PybricksBroadcastValue = decoded_data[0]
-        return PybricksBroadcast(channel, (decoded_value,))
+        return PybricksBroadcast(channel, decoded_value)
     else:
         return PybricksBroadcast(
             channel, cast(PybricksBroadcastData, tuple(decoded_data))

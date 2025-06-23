@@ -6,7 +6,6 @@ from pb_ble.messages import decode_message, encode_message, pack_pnp_id, unpack_
 
 class TestPybricksBleDecodeMessage:
     # h.ble.broadcast(5)
-    @pytest.mark.skip("Auto-unboxing of single-object values not supported")
     def test_decode_message_single_object(self):
         # channel 200
         # single object marker

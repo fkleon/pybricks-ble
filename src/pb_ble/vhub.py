@@ -77,7 +77,18 @@ class VirtualBLE(_common.BLE, AsyncExitStack):
         self, channel: int
     ) -> Optional[Tuple[Union[bool, int, float, str, bytes], ...]]:
         advertisement = self._observer.observe(channel)
-        return advertisement.data if advertisement is not None else None
+
+        if advertisement is not None:
+            if isinstance(advertisement.data, tuple):
+                return advertisement.data
+            else:
+                # TODO: Pybricks does expose single-value broadcasts
+                # in a single-object tuple. However, that doesn't match
+                # the type signature of the observe() method. To adhere
+                # to the type signature, we only return wrapped values.
+                return (advertisement.data,)
+        else:
+            return None
 
     def signal_strength(self, channel: int) -> int:
         advertisement = self._observer.observe(channel)
