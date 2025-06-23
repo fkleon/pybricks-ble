@@ -18,7 +18,7 @@ PybricksBroadcastValue: TypeAlias = bool | int | float | str | bytes
 """Type of a value that can be broadcast."""
 
 PybricksBroadcastData: TypeAlias = (
-    PybricksBroadcastValue | tuple[PybricksBroadcastValue]
+    PybricksBroadcastValue | tuple[PybricksBroadcastValue, ...]
 )
 """Type of the broadcast data."""
 

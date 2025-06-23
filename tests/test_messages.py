@@ -5,6 +5,7 @@ from pb_ble.messages import decode_message, encode_message, pack_pnp_id, unpack_
 
 
 class TestPybricksBleDecodeMessage:
+    # h.ble.broadcast(5)
     def test_decode_message_single_object(self):
         # channel 200
         # single object marker
@@ -13,11 +14,11 @@ class TestPybricksBleDecodeMessage:
         channel, data = decode_message(message)
 
         assert channel == 200
-        assert not isinstance(data, tuple)
+        assert isinstance(data, int), type(data)
 
         assert data == 5
 
-    # TODO: Check behaviour against reference implementation
+    # h.ble.broadcast((5,))
     def test_decode_message_single_object_tuple(self):
         # channel 200
         # int8: 5
@@ -25,10 +26,23 @@ class TestPybricksBleDecodeMessage:
         channel, data = decode_message(message)
 
         assert channel == 200
+        assert isinstance(data, tuple), type(data)
+        assert len(data) == 1
+
+        assert data == (5,)
+
+    # h.ble.broadcast((5,))
+    def test_decode_message_single_object_tuple_0(self):
+        # channel 0
+        # int8: 5
+        message = b"\x00a\x05"
+        channel, data = decode_message(message)
+
+        assert channel == 0
         assert isinstance(data, tuple)
         assert len(data) == 1
 
-        assert data[0] == 5
+        assert data == (5,)
 
     def test_decode_message_int8_int16_int32(self):
         # channel: 200
@@ -127,9 +141,9 @@ class TestPybricksBleEncodeMessage:
         data = encode_message(200, 5)
         assert data == b"\xc8\x00\x61\x05"
 
-    @pytest.mark.skip("Check behaviour against reference implementation")
+    @pytest.mark.skip("Encoding single-object tuples is not supported")
     def test_encode_message_single_object_tuple(self):
-        data = encode_message(200, (1))
+        data = encode_message(200, (1,))  # type: ignore[arg-type]
         assert data == b"\xc8\x61\x01"
 
     def test_encode_message_int8_int16_int32(self):
