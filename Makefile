@@ -21,7 +21,7 @@ format: .venv ## Format the code base.
 	ruff check . --fix
 	ruff format .
 
-.PHONY: type
+.PHONY: typecheck
 typecheck: .venv ## Type-check the code base.
 	mypy .
 
