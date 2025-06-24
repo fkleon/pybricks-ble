@@ -35,7 +35,7 @@ class TestPassiveBlueZObserver:
         assert observer.rssi_threshold == -100
         assert observer.device_pattern == "Pybricks"
 
-    async def test_observe(self, adapter, observer):
+    async def test_observe(self, adapter, observer: BlueZPybricksObserver):
         # WHEN a channel is observed
         data = observer.observe(0)
 
@@ -64,7 +64,7 @@ class TestActiveBlueZObserver:
         assert observer.rssi_threshold is None
         assert observer.device_pattern == "Name"
 
-    async def test_observe(self, adapter, observer):
+    async def test_observe(self, adapter, observer: BlueZPybricksObserver):
         # WHEN a channel is observed
         data = observer.observe(0)
 
