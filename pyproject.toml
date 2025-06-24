@@ -21,7 +21,7 @@ dependencies = [
     "bluetooth-adapters ~= 0.16",
     "cachetools ~= 5.3",
     "dbus-fast ~= 2.15",
-    "pybricks ~= 3.6.0",
+    "pybricks @ git+https://github.com/fkleon/pybricks-api@ble-type-fixes",
 ]
 
 [dependency-groups]
@@ -31,6 +31,7 @@ dev = [
     "mypy ~= 1.16.0",
     "pytest ~= 8.3",
     "pytest-asyncio ~= 1.0.0",
+    "pytest-mock ~= 3.14.1",
     "python-dbusmock ~= 0.34.3",
     "ruff ~= 0.11.8",
     "types-cachetools ~= 5.3",

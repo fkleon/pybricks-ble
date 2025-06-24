@@ -21,7 +21,7 @@ async def observe(vble: _common.BLE, observe_channel: int, interval: float = 1.0
         data = vble.observe(observe_channel)
         rssi = vble.signal_strength(observe_channel)
         if data:
-            print(f"Observation: '{data}' [{rssi} dBm]")
+            print(f"Observation: '{data!r}' [{rssi} dBm]")
 
 
 async def broadcast(vble: _common.BLE, interval: float = 10.0):
