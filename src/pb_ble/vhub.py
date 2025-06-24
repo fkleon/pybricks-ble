@@ -30,6 +30,13 @@ class VirtualBLE(_common.BLE, AsyncExitStack):
 
     _adv: PybricksBroadcastAdvertisement
     """The current data broadcast."""
+    _device_version: str
+    """The version string configured for this VirtualBLE device."""
+
+    _broadcaster: BlueZBroadcaster
+    """The broadcaster to use."""
+    _observer: BlueZPybricksObserver
+    """The observer to use."""
 
     def __init__(
         self,
