@@ -55,7 +55,7 @@ class TestBlueZBroadcaster:
         # THEN the advertisements are removed
         assert len(broadcaster.advertisements) == 0
 
-    async def test_broadcast(self, broadcaster):
+    async def test_broadcast(self, broadcaster: BlueZBroadcaster):
         # GIVEN a broadcast
         adv = BroadcastAdvertisement(
             broadcaster.name,
@@ -69,7 +69,7 @@ class TestBlueZBroadcaster:
         assert adv.path in broadcaster.advertisements
 
     @pytest.mark.skip_on_bluez_mock("Does not implement release timeout")
-    async def test_broadcast_release(self, broadcaster):
+    async def test_broadcast_release(self, broadcaster: BlueZBroadcaster):
         # GIVEN a broadcast
         semaphore = Semaphore(1)
         adv = BroadcastAdvertisement(
@@ -97,7 +97,7 @@ class TestBlueZBroadcaster:
 
         # TODO: test that it's unexported from the bus
 
-    async def test_broadcast_twice(self, broadcaster):
+    async def test_broadcast_twice(self, broadcaster: BlueZBroadcaster):
         # GIVEN a broadcast
         adv = BroadcastAdvertisement(broadcaster.name)
 

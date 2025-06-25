@@ -1,6 +1,6 @@
 import sys
 from contextlib import AsyncExitStack
-from typing import ClassVar, Optional, Sequence, Tuple, Union, cast
+from typing import ClassVar, Sequence, cast
 
 from dbus_fast.aio import MessageBus, ProxyObject
 from dbus_fast.constants import BusType
@@ -30,6 +30,13 @@ class VirtualBLE(_common.BLE, AsyncExitStack):
 
     _adv: PybricksBroadcastAdvertisement
     """The current data broadcast."""
+    _device_version: str
+    """The version string configured for this VirtualBLE device."""
+
+    _broadcaster: BlueZBroadcaster
+    """The broadcaster to use."""
+    _observer: BlueZPybricksObserver
+    """The observer to use."""
 
     def __init__(
         self,
@@ -73,20 +80,11 @@ class VirtualBLE(_common.BLE, AsyncExitStack):
                 await self._broadcaster.broadcast(self._adv)
             self._adv.message = cast(PybricksBroadcastData, tuple(data))
 
-    def observe(
-        self, channel: int
-    ) -> Optional[Tuple[Union[bool, int, float, str, bytes], ...]]:
+    def observe(self, channel: int) -> PybricksBroadcastData | None:
         advertisement = self._observer.observe(channel)
 
         if advertisement is not None:
-            if isinstance(advertisement.data, tuple):
-                return advertisement.data
-            else:
-                # TODO: Pybricks does expose single-value broadcasts
-                # in a single-object tuple. However, that doesn't match
-                # the type signature of the observe() method. To adhere
-                # to the type signature, we only return wrapped values.
-                return (advertisement.data,)
+            return advertisement.data
         else:
             return None
 
