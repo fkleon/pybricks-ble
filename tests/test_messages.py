@@ -6,7 +6,7 @@ from pb_ble.messages import decode_message, encode_message, pack_pnp_id, unpack_
 
 class TestPybricksBleDecodeMessage:
     # h.ble.broadcast(5)
-    def test_decode_message_single_object(self):
+    def test_decode_message_single_object(self) -> None:
         # channel 200
         # single object marker
         # int8: 5
@@ -19,7 +19,7 @@ class TestPybricksBleDecodeMessage:
         assert data == 5
 
     # h.ble.broadcast((5,))
-    def test_decode_message_single_object_tuple(self):
+    def test_decode_message_single_object_tuple(self) -> None:
         # channel 200
         # int8: 5
         message = b"\xc8\x61\x05"
@@ -32,7 +32,7 @@ class TestPybricksBleDecodeMessage:
         assert data == (5,)
 
     # h.ble.broadcast((5,))
-    def test_decode_message_single_object_tuple_0(self):
+    def test_decode_message_single_object_tuple_0(self) -> None:
         # channel 0
         # int8: 5
         message = b"\x00a\x05"
@@ -44,7 +44,7 @@ class TestPybricksBleDecodeMessage:
 
         assert data == (5,)
 
-    def test_decode_message_int8_int16_int32(self):
+    def test_decode_message_int8_int16_int32(self) -> None:
         # channel: 200
         # str: '8_16_32'
         # int8: 127
@@ -64,7 +64,7 @@ class TestPybricksBleDecodeMessage:
         assert data[3] == 32_767
         assert data[4] == 32_876
 
-    def test_decode_message_int32_max(self):
+    def test_decode_message_int32_max(self) -> None:
         # channel: 200
         # str: 'int32'
         # int32: 536_870_912
@@ -82,7 +82,7 @@ class TestPybricksBleDecodeMessage:
             data[2] == 1_073_741_823
         )  # max int32 in micropython seems to be actually int31
 
-    def test_decode_message_float(self):
+    def test_decode_message_float(self) -> None:
         # channel: 200
         # str: 'float'
         # float32: PI
@@ -96,7 +96,7 @@ class TestPybricksBleDecodeMessage:
         assert data[0] == "float"
         assert data[1] == 3.1415927410125732  # float32 pi
 
-    def test_decode_message_str_bool(self):
+    def test_decode_message_str_bool(self) -> None:
         # channel: 200
         # str: 'NTF'
         # bool: True
@@ -112,7 +112,7 @@ class TestPybricksBleDecodeMessage:
         assert data[1] is True
         assert data[2] is False
 
-    def test_decode_message_bytes(self):
+    def test_decode_message_bytes(self) -> None:
         # channel: 200
         # str: 'bytes'
         # bytes: b'\x00\xc4\x81'
@@ -126,7 +126,7 @@ class TestPybricksBleDecodeMessage:
         assert data[0] == "bytes"
         assert data[1] == b"\x00\xc4\x81"
 
-    def test_decode_message_empty(self):
+    def test_decode_message_empty(self) -> None:
         # channel: 200
         message = b"\xc8"
         channel, data = decode_message(message)
@@ -137,46 +137,46 @@ class TestPybricksBleDecodeMessage:
 
 
 class TestPybricksBleEncodeMessage:
-    def test_encode_message_single_object(self):
+    def test_encode_message_single_object(self) -> None:
         data = encode_message(200, 5)
         assert data == b"\xc8\x00\x61\x05"
 
     @pytest.mark.skip("Encoding single-object tuples is not supported")
-    def test_encode_message_single_object_tuple(self):
+    def test_encode_message_single_object_tuple(self) -> None:
         data = encode_message(200, (1,))  # type: ignore[arg-type]
         assert data == b"\xc8\x61\x01"
 
-    def test_encode_message_int8_int16_int32(self):
+    def test_encode_message_int8_int16_int32(self) -> None:
         data = encode_message(200, "8_16_32", 127, 128, 32_767, 32_876)
         assert data == b"\xc8\xa78_16_32a\x7fb\x80\x00b\xff\x7fdl\x80\x00\x00"
 
-    def test_encode_message_int32_max(self):
+    def test_encode_message_int32_max(self) -> None:
         data = encode_message(200, "int32", 536_870_912, 1_073_741_823)
         assert data == b"\xc8\xa5int32d\x00\x00\x00 d\xff\xff\xff?"
 
-    def test_encode_message_float(self):
+    def test_encode_message_float(self) -> None:
         data = encode_message(0, "float", 3.1415927410125732)  # float32 pi
         assert data == b"\x00\xa5float\x84\xdb\x0fI@"
 
-    def test_encode_message_str_bool(self):
+    def test_encode_message_str_bool(self) -> None:
         data = encode_message(200, "NTF", True, False)
         assert data == b"\xc8\xa3NTF @"
 
-    def test_encode_message_bytes(self):
+    def test_encode_message_bytes(self) -> None:
         data = encode_message(200, "bytes", b"\x00\xc4\x81")
         assert data == b"\xc8\xa5bytes\xc3\x00\xc4\x81"
 
-    def test_encode_message_empty(self):
+    def test_encode_message_empty(self) -> None:
         data = encode_message(200)
         assert data == b"\xc8"
 
 
 class TestPybricksBlePnpId:
-    def test_pack_pnp_id(self):
+    def test_pack_pnp_id(self) -> None:
         pnp_id = pack_pnp_id(0x00, 0x00, vendor_id_type="BT", vendor_id=LEGO_CID)
         assert pnp_id == b"\x01\x97\x03\x00\x00\x00\x00"
 
-    def test_unpack_pnp_id(self):
+    def test_unpack_pnp_id(self) -> None:
         pnp_id = pack_pnp_id(0x00, 0x00, vendor_id_type="BT", vendor_id=LEGO_CID)
         (vid_type, vid, pid, rev) = unpack_pnp_id(pnp_id)
         assert vid_type == "BT"
