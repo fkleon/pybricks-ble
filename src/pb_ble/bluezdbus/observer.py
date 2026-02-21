@@ -8,9 +8,8 @@ from struct import pack
 from typing import NamedTuple, Sequence
 
 from bleak import AdvertisementData, BleakScanner, BLEDevice
+from bleak.args.bluez import BlueZDiscoveryFilters, BlueZScannerArgs, OrPattern
 from bleak.assigned_numbers import AdvertisementDataType
-from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
-from bleak.backends.bluezdbus.scanner import BlueZDiscoveryFilters, BlueZScannerArgs
 from cachetools import TTLCache
 
 from ..constants import (
