@@ -19,7 +19,7 @@ from typing import (
 
 from dbus_fast.aio import ProxyInterface, ProxyObject
 from dbus_fast.constants import PropertyAccess
-from dbus_fast.service import ServiceInterface, _Property, dbus_property, method
+from dbus_fast.service import ServiceInterface, _Property, dbus_method, dbus_property
 from dbus_fast.signature import Variant
 
 from ..constants import (
@@ -165,8 +165,8 @@ class LEAdvertisement(ServiceInterface):
             else:
                 prop.disabled = True
 
-    @method()
-    def Release(self):
+    @dbus_method()
+    def Release(self) -> None:
         logger.debug("Released advertisement: %s", self)
 
     @dbus_property(access=PropertyAccess.READ)
@@ -445,8 +445,8 @@ class BroadcastAdvertisement(LEAdvertisement):
         # for prop in ServiceInterface._get_properties(self):
         #    logger.debug("Property %s (%s)", prop.name, "DISABLED" if prop.disabled else "ENABLED")
 
-    @method()
-    def Release(self):
+    @dbus_method()
+    def Release(self) -> None:
         super().Release()
         self.on_release(self.path)
 
