@@ -1,18 +1,23 @@
 from asyncio import Lock, Semaphore
+from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
+from dbus_fast.aio import MessageBus, ProxyObject
 
 from pb_ble.bluezdbus import (
     BlueZBroadcaster,
     BroadcastAdvertisement,
 )
+from pb_ble.bluezdbus.adapters import AdapterDetailsExt
 
 lock = Lock()
 
 
 @pytest_asyncio.fixture(autouse=True)
-async def require_advertise(adapter_details, adapter_name):
+async def require_advertise(
+    adapter_details: AdapterDetailsExt, adapter_name: str
+) -> None:
     if not adapter_details["advertise"]:
         pytest.skip(
             reason=f"Bluetooth adapter '{adapter_name}' does not support BLE advertising"
@@ -20,7 +25,9 @@ async def require_advertise(adapter_details, adapter_name):
 
 
 @pytest_asyncio.fixture
-async def broadcaster(message_bus, adapter):
+async def broadcaster(
+    message_bus: MessageBus, adapter: ProxyObject
+) -> AsyncGenerator[BlueZBroadcaster, None]:
     broadcaster = BlueZBroadcaster(bus=message_bus, adapter=adapter, name="vhub")
     await lock.acquire()
     yield broadcaster
@@ -29,19 +36,23 @@ async def broadcaster(message_bus, adapter):
 
 
 @pytest_asyncio.fixture(autouse=False)
-async def broadcast_lock():
+async def broadcast_lock() -> AsyncGenerator[None, None]:
     await lock.acquire()
     yield
     lock.release()
 
 
 class TestBlueZBroadcaster:
-    def test_create_broadcaster(self, message_bus, adapter):
+    def test_create_broadcaster(
+        self, message_bus: MessageBus, adapter: ProxyObject
+    ) -> None:
         broadcaster = BlueZBroadcaster(bus=message_bus, adapter=adapter, name="vhub")
         assert broadcaster is not None
         assert len(broadcaster.advertisements) == 0
 
-    async def test_stop_broadcaster(self, message_bus, adapter):
+    async def test_stop_broadcaster(
+        self, message_bus: MessageBus, adapter: ProxyObject
+    ) -> None:
         # GIVEN an advertisement on the bus is known to the broadcaster
         broadcaster = BlueZBroadcaster(bus=message_bus, adapter=adapter, name="vhub")
         adv = BroadcastAdvertisement("vhub")
@@ -55,7 +66,7 @@ class TestBlueZBroadcaster:
         # THEN the advertisements are removed
         assert len(broadcaster.advertisements) == 0
 
-    async def test_broadcast(self, broadcaster: BlueZBroadcaster):
+    async def test_broadcast(self, broadcaster: BlueZBroadcaster) -> None:
         # GIVEN a broadcast
         adv = BroadcastAdvertisement(
             broadcaster.name,
@@ -69,7 +80,7 @@ class TestBlueZBroadcaster:
         assert adv.path in broadcaster.advertisements
 
     @pytest.mark.skip_on_bluez_mock("Does not implement release timeout")
-    async def test_broadcast_release(self, broadcaster: BlueZBroadcaster):
+    async def test_broadcast_release(self, broadcaster: BlueZBroadcaster) -> None:
         # GIVEN a broadcast
         semaphore = Semaphore(1)
         adv = BroadcastAdvertisement(
@@ -97,7 +108,7 @@ class TestBlueZBroadcaster:
 
         # TODO: test that it's unexported from the bus
 
-    async def test_broadcast_twice(self, broadcaster: BlueZBroadcaster):
+    async def test_broadcast_twice(self, broadcaster: BlueZBroadcaster) -> None:
         # GIVEN a broadcast
         adv = BroadcastAdvertisement(broadcaster.name)
 

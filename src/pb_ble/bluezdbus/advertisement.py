@@ -11,15 +11,26 @@ This module contains types associated with the BlueZ D-Bus advertisement api:
 import logging
 from enum import Enum
 from typing import (
+    Annotated,
     Any,
     Callable,
-    no_type_check,
+    Protocol,
+    cast,
     overload,
 )
 
 from dbus_fast.aio import ProxyInterface, ProxyObject
+from dbus_fast.annotations import (
+    DBusBool,
+    DBusDict,
+    DBusInt16,
+    DBusSignature,
+    DBusStr,
+    DBusUInt16,
+    DBusUInt32,
+)
 from dbus_fast.constants import PropertyAccess
-from dbus_fast.service import ServiceInterface, _Property, dbus_property, method
+from dbus_fast.service import ServiceInterface, _Property, dbus_method, dbus_property
 from dbus_fast.signature import Variant
 
 from ..constants import (
@@ -79,6 +90,11 @@ class Feature(Enum):
     """Indicates whether multiple advertising will be offloaded to the controller."""
 
 
+DBusArrayString = Annotated[list[str], DBusSignature("as")]
+DBusUInt16Dict = Annotated[dict[int, Variant], DBusSignature("a{qv}")]
+DBusByteDict = Annotated[dict[int, Variant], DBusSignature("a{yv}")]
+
+
 class LEAdvertisement(ServiceInterface):
     """
     Implementation of the `org.bluez.LEAdvertisement1` D-Bus interface.
@@ -101,10 +117,10 @@ class LEAdvertisement(ServiceInterface):
 
         self._type: str = advertising_type.value
         self._service_uuids: list[str] = []
-        self._manufacturer_data: dict[int, bytes] = {}  # uint16 -> bytes
+        self._manufacturer_data: dict[int, Variant] = {}  # uint16 -> bytes
         self._solicit_uuids: list[str] = []
-        self._service_data: dict[str | int, bytes] = {}  # uint16 | str -> bytes
-        self._data: dict[int, bytes] = {}  # EXPERIMENTAL # uint8 -> bytes
+        self._service_data: dict[str, Variant] = {}  # uint16 | str -> bytes
+        self._data: dict[int, Variant] = {}  # EXPERIMENTAL # uint8 -> bytes
         self._discoverable: bool = False  # EXPERIMENTAL
         self._discoverable_timeout: int = 0  # EXPERIMENTAL # uint16
         self._includes: list[str] = [i.value for i in includes]
@@ -165,203 +181,174 @@ class LEAdvertisement(ServiceInterface):
             else:
                 prop.disabled = True
 
-    @method()
-    def Release(self):
+    @dbus_method()
+    def Release(self) -> None:
         logger.debug("Released advertisement: %s", self)
 
     @dbus_property(access=PropertyAccess.READ)
-    @no_type_check
-    def Type(self) -> "s":  # type: ignore # noqa: F821
+    def Type(self) -> DBusStr:
         """
         Determines the type of advertising packet requested.
         """
         return self._type
 
-    @Type.setter  # type: ignore
-    @no_type_check
-    def Type(self, type: "s"):  # type: ignore  # noqa: F821
+    @Type.setter  # type: ignore[no-redef]
+    def Type(self, type: DBusStr) -> None:
         self._type = type
 
     @dbus_property()
-    @no_type_check
-    def ServiceUUIDs(self) -> "as":  # type: ignore # noqa: F821 F722
+    def ServiceUUIDs(self) -> DBusArrayString:
         """
         List of UUIDs to include in the "Service UUID" field of the Advertising Data.
         """
         return self._service_uuids
 
-    @ServiceUUIDs.setter  # type: ignore
-    @no_type_check
-    def ServiceUUIDs(self, service_uuids: "as"):  # type: ignore # noqa: F821 F722
+    @ServiceUUIDs.setter  # type: ignore[no-redef]
+    def ServiceUUIDs(self, service_uuids: DBusArrayString) -> None:
         self._service_uuids = service_uuids
 
     @dbus_property()
-    @no_type_check
-    def ManufacturerData(self) -> "a{qv}":  # type: ignore # noqa: F821 F722
+    def ManufacturerData(self) -> DBusUInt16Dict:
         """
         Manufacturer Data fields to include in the Advertising Data.
         Keys are the Manufacturer ID to associate with the data.
         """
         return self._manufacturer_data
 
-    @ManufacturerData.setter  # type: ignore
-    @no_type_check
-    def ManufacturerData(self, data: "a{qv}"):  # type: ignore # noqa: F821 F722
+    @ManufacturerData.setter  # type: ignore[no-redef]
+    def ManufacturerData(self, data: DBusUInt16Dict) -> None:
         self._manufacturer_data = data
 
     @dbus_property()
-    @no_type_check
-    def SolicitUUIDs(self) -> "as":  # type: ignore # noqa: F821 F722
+    def SolicitUUIDs(self) -> DBusArrayString:
         """
         Array of UUIDs to include in "Service Solicitation" Advertisement Data.
         """
         return self._solicit_uuids
 
-    @SolicitUUIDs.setter  # type: ignore
-    @no_type_check
-    def SolicitUUIDs(self, uuids: "as"):  # type: ignore # noqa: F821 F722
+    @SolicitUUIDs.setter  # type: ignore[no-redef]
+    def SolicitUUIDs(self, uuids: DBusArrayString) -> None:
         self._solicit_uuids = uuids
 
     @dbus_property()
-    @no_type_check
-    def ServiceData(self) -> "a{sv}":  # type: ignore # noqa: F821 F722
+    def ServiceData(self) -> DBusDict:
         """
         Service Data elements to include. The keys are the UUID to associate with the data.
         """
         return self._service_data
 
-    @ServiceData.setter  # type: ignore
-    @no_type_check
-    def ServiceData(self, data: "a{sv}"):  # type: ignore # noqa: F821 F722
+    @ServiceData.setter  # type: ignore[no-redef]
+    def ServiceData(self, data: DBusDict) -> None:
         self._service_data = data
 
     @dbus_property(disabled=True)
-    @no_type_check
-    def Data(self) -> "a{yv}":  # type: ignore # noqa: F821 F722
+    def Data(self) -> DBusByteDict:
         """
         Advertising Data to include.
         Key is the advertising type and value is the data as byte array.
         """
         return self._data
 
-    @Data.setter  # type: ignore
-    @no_type_check
-    def Data(self, data: "a{yv}"):  # type: ignore # noqa: F821 F722
+    @Data.setter  # type: ignore[no-redef]
+    def Data(self, data: DBusByteDict) -> None:
         self._data = data
 
     @dbus_property(disabled=True)
-    @no_type_check
-    def Discoverable(self) -> "b":  # type: ignore # noqa: F821 F722
+    def Discoverable(self) -> DBusBool:
         """
         Advertise as general discoverable.
         When present this will override adapter Discoverable property.
         """
         return self._discoverable
 
-    @Discoverable.setter  # type: ignore
-    @no_type_check
-    def Discoverable(self, discoverable: "b"):  # type: ignore # noqa: F821 F722
+    @Discoverable.setter  # type: ignore[no-redef]
+    def Discoverable(self, discoverable: DBusBool) -> None:
         self._discoverable = discoverable
 
     @dbus_property(disabled=True)
-    @no_type_check
-    def DiscoverableTimeout(self) -> "q":  # type: ignore # noqa: F821 F722
+    def DiscoverableTimeout(self) -> DBusUInt16:
         """
         The discoverable timeout in seconds.
         A value of zero means that the timeout is disabled and it will stay in discoverable/limited mode forever.
         """
         return self._discoverable_timeout
 
-    @DiscoverableTimeout.setter  # type: ignore
-    @no_type_check
-    def DiscoverableTimeout(self, timeout: "q"):  # type: ignore # noqa: F821 F722
+    @DiscoverableTimeout.setter  # type: ignore[no-redef]
+    def DiscoverableTimeout(self, timeout: DBusUInt16) -> None:
         self._discoverable_timeout = timeout
 
     @dbus_property()
-    @no_type_check
-    def Includes(self) -> "as":  # type: ignore # noqa: F821 F722
+    def Includes(self) -> DBusArrayString:
         """
         List of features to be included in the advertising packet.
         """
         return self._includes
 
-    @Includes.setter  # type: ignore
-    @no_type_check
-    def Includes(self, includes: "as"):  # type: ignore # noqa: F821 F722
+    @Includes.setter  # type: ignore[no-redef]
+    def Includes(self, includes: DBusArrayString) -> None:
         self._includes = includes
 
     @dbus_property()
-    @no_type_check
-    def LocalName(self) -> "s":  # type: ignore # noqa: F821 N802
+    def LocalName(self) -> DBusStr:
         """
         Local name to be used in the advertising report.
         If the string is too big to fit into the packet it will be truncated.
         """
         return self._local_name
 
-    @LocalName.setter  # type: ignore
-    @no_type_check
-    def LocalName(self, name: "s"):  # type: ignore # noqa: F821 N802
+    @LocalName.setter  # type: ignore[no-redef]
+    def LocalName(self, name: DBusStr) -> None:
         self._local_name = name
 
     @dbus_property()
-    @no_type_check
-    def Appearance(self) -> "q":  # type: ignore # noqa: F821 N802
+    def Appearance(self) -> DBusUInt16:
         """
         Appearance to be used in the advertising report.
         """
         return self._appearance
 
-    @Appearance.setter  # type: ignore
-    @no_type_check
-    def Appearance(self, appearance: "q"):  # type: ignore # noqa: F821 N802
+    @Appearance.setter  # type: ignore[no-redef]
+    def Appearance(self, appearance: DBusUInt16) -> None:
         self._appearance = appearance
 
     @dbus_property()
-    @no_type_check
-    def Duration(self) -> "q":  # type: ignore # noqa: F821 N802
+    def Duration(self) -> DBusUInt16:
         """
         Rotation duration of the advertisement in seconds.
         If there are other applications advertising no duration is set the default is 2 seconds.
         """
         return self._duration
 
-    @Duration.setter  # type: ignore
-    @no_type_check
-    def Duration(self, seconds: "q"):  # type: ignore # noqa: F821 N802
+    @Duration.setter  # type: ignore[no-redef]
+    def Duration(self, seconds: DBusUInt16) -> None:
         self._duration = seconds
 
     @dbus_property()
-    @no_type_check
-    def Timeout(self) -> "q":  # type: ignore # noqa: F821 N802
+    def Timeout(self) -> DBusUInt16:
         """
         Timeout of the advertisement in seconds.
         This defines the lifetime of the advertisement.
         """
         return self._timeout
 
-    @Timeout.setter  # type: ignore
-    @no_type_check
-    def Timeout(self, seconds: "q"):  # type: ignore # noqa: F821 N802
+    @Timeout.setter  # type: ignore[no-redef]
+    def Timeout(self, seconds: DBusUInt16) -> None:
         self._timeout = seconds
 
     @dbus_property(disabled=True)
-    @no_type_check
-    def SecondaryChannel(self) -> "s":  # type: ignore # noqa: F821 N802
+    def SecondaryChannel(self) -> DBusStr:
         """
         Secondary channel to be used.
         Primary channel is always set to "1M" except when "Coded" is set.
         """
         return self._secondary_channel
 
-    @SecondaryChannel.setter  # type: ignore
-    @no_type_check
-    def SecondaryChannel(self, channel: "q"):  # type: ignore # noqa: F821 N802
+    @SecondaryChannel.setter  # type: ignore[no-redef]
+    def SecondaryChannel(self, channel: DBusStr) -> None:
         self._secondary_channel = channel
 
     @dbus_property(disabled=True)
-    @no_type_check
-    def MinInterval(self) -> "u":  # type: ignore # noqa: F821 N802
+    def MinInterval(self) -> DBusUInt32:
         """
         Minimum advertising interval to be used by the advertising set, in milliseconds.
         Acceptable values are in the range [20ms, 10,485s].
@@ -370,14 +357,12 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._min_interval
 
-    @MinInterval.setter  # type: ignore
-    @no_type_check
-    def MinInterval(self, milliseconds: "u"):  # type: ignore # noqa: F821 N802
+    @MinInterval.setter  # type: ignore[no-redef]
+    def MinInterval(self, milliseconds: DBusUInt32) -> None:
         self._min_interval = milliseconds
 
     @dbus_property(disabled=True)
-    @no_type_check
-    def MaxInterval(self) -> "u":  # type: ignore # noqa: F821 N802
+    def MaxInterval(self) -> DBusUInt32:
         """
         Maximum advertising interval to be used by the advertising set, in milliseconds.
         Acceptable values are in the range [20ms, 10,485s].
@@ -386,14 +371,12 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._max_interval
 
-    @MaxInterval.setter  # type: ignore
-    @no_type_check
-    def MaxInterval(self, milliseconds: "u"):  # type: ignore # noqa: F821 N802
+    @MaxInterval.setter  # type: ignore[no-redef]
+    def MaxInterval(self, milliseconds: DBusUInt32) -> None:
         self._max_interval = milliseconds
 
     @dbus_property(disabled=True)
-    @no_type_check
-    def TxPower(self) -> "n":  # type: ignore # noqa: F821 N802
+    def TxPower(self) -> DBusInt16:
         """
         Requested transmission power of this advertising set.
         The provided value is used only if the "CanSetTxPower" feature is enabled on the org.bluez.LEAdvertisingManager(5).
@@ -401,9 +384,8 @@ class LEAdvertisement(ServiceInterface):
         """
         return self._tx_power
 
-    @TxPower.setter  # type: ignore
-    @no_type_check
-    def TxPower(self, dbm: "n"):  # type: ignore # noqa: F821 N802
+    @TxPower.setter  # type: ignore[no-redef]
+    def TxPower(self, dbm: DBusInt16) -> None:
         self._tx_power = dbm
 
 
@@ -445,8 +427,8 @@ class BroadcastAdvertisement(LEAdvertisement):
         # for prop in ServiceInterface._get_properties(self):
         #    logger.debug("Property %s (%s)", prop.name, "DISABLED" if prop.disabled else "ENABLED")
 
-    @method()
-    def Release(self):
+    @dbus_method()
+    def Release(self) -> None:
         super().Release()
         self.on_release(self.path)
 
@@ -482,17 +464,17 @@ class PybricksBroadcastAdvertisement(BroadcastAdvertisement):
         """The data contained in this broadcast message."""
         if self.LEGO_CID in self._manufacturer_data:
             channel, value = decode_message(
-                self._manufacturer_data[self.LEGO_CID].value  # type: ignore
+                self._manufacturer_data[self.LEGO_CID].value
             )
             return value
         else:
             return None
 
     @message.setter
-    def message(self, value: PybricksBroadcastData):
+    def message(self, value: PybricksBroadcastData) -> None:
         value = value if isinstance(value, tuple) else (value,)
         message = encode_message(self.channel, *value)
-        self._manufacturer_data[self.LEGO_CID] = Variant("ay", message)  # type: ignore
+        self._manufacturer_data[self.LEGO_CID] = Variant("ay", message)
         # Notify BlueZ of the changed manufacturer data so the advertisement is updated
         self.emit_properties_changed(
             changed_properties={"ManufacturerData": self._manufacturer_data}
@@ -502,12 +484,77 @@ class PybricksBroadcastAdvertisement(BroadcastAdvertisement):
         return f"PybricksBroadcastAdvertisement(channel={self.channel}, data={self.message!r}, timeout={self._timeout})"
 
 
+class LEAdvertisingManager1(Protocol):
+    """Protocol for the 'org.bluez.LEAdvertisingManager1' proxy interface."""
+
+    async def call_register_advertisement(self, path: str, options: dict) -> None:
+        """Registers an advertisement object to be sent over the LE Advertising channel.
+
+        The service must implement org.bluez.LEAdvertisement(5) interface.
+
+        Possible errors:
+
+            org.bluez.Error.InvalidArguments
+                Indicates that the object has invalid or conflicting properties.
+            org.bluez.Error.AlreadyExists
+                Indicates the object is already registered.
+            org.bluez.Error.InvalidLength
+                Indicates that the data provided generates a data packet which is too long.
+            org.bluez.Error.NotPermitted
+                Indicates the maximum number of advertisement instances has been reached.
+        """
+        ...
+
+    async def call_unregister_advertisement(self, path: str) -> None:
+        """Unregisters an advertisement that has been previously registered using RegisterAdvertisement().
+
+        The object path parameter must match the same value that has been used on registration.
+
+        Possible errors:
+
+            org.bluez.Error.InvalidArguments
+            org.bluez.Error.DoesNotExist
+        """
+        ...
+
+    async def get_active_instances(self) -> int:
+        """Number of active advertising instances."""
+        ...
+
+    async def get_supported_instances(self) -> int:
+        """Number of available advertising instances."""
+        ...
+
+    async def get_supported_includes(self) -> list[Include]:
+        """List of supported system includes."""
+        ...
+
+    async def get_supported_secondary_channels(self) -> list[SecondaryChannel]:
+        """List of supported Secondary channels.
+
+        Secondary channels can be used to advertise with the corresponding PHY.
+        """
+        ...
+
+    async def get_supported_capabilities(self) -> dict[Capability, Any]:
+        """Enumerates Advertising-related controller capabilities useful to the client."""
+        ...
+
+    async def get_supported_features(self) -> list[Feature]:
+        """List of supported platform features.
+
+        If no features are available on the platform, the SupportedFeatures array will be empty."""
+        ...
+
+
 class LEAdvertisingManager:
     """
     Client implementation of the `org.bluez.LEAdvertisementManager1` D-Bus interface.
     """
 
     INTERFACE_NAME: str = "org.bluez.LEAdvertisingManager1"
+
+    _adv_manager: LEAdvertisingManager1
 
     def __init__(
         self,
@@ -517,7 +564,12 @@ class LEAdvertisingManager:
         if adapter is None and adv_manager is None:
             raise ValueError("adapter or adv_manager required")
 
-        self._adv_manager = adv_manager or adapter.get_interface(self.INTERFACE_NAME)  # type: ignore
+        if adv_manager:
+            self._adv_manager = cast(LEAdvertisingManager1, adv_manager)
+        elif adapter:
+            self._adv_manager = cast(
+                LEAdvertisingManager1, adapter.get_interface(self.INTERFACE_NAME)
+            )
 
     async def register_advertisement(
         self, adv: LEAdvertisement, options: dict | None = None
@@ -531,7 +583,7 @@ class LEAdvertisingManager:
         :return: `None`
         """
         options = options or {}
-        return await self._adv_manager.call_register_advertisement(adv.path, options)  # type: ignore
+        return await self._adv_manager.call_register_advertisement(adv.path, options)
 
     @overload
     async def unregister_advertisement(self, adv: LEAdvertisement): ...
@@ -546,34 +598,34 @@ class LEAdvertisingManager:
         :return: `None`
         """
         if isinstance(adv, str):
-            return await self._adv_manager.call_unregister_advertisement(adv)  # type: ignore
+            return await self._adv_manager.call_unregister_advertisement(adv)
         else:
-            return await self._adv_manager.call_unregister_advertisement(adv.path)  # type: ignore
+            return await self._adv_manager.call_unregister_advertisement(adv.path)
 
     async def active_instances(self) -> int:
         """Number of active advertising instances."""
-        return await self._adv_manager.get_active_instances()  # type: ignore
+        return await self._adv_manager.get_active_instances()
 
     async def supported_instances(self) -> int:
         """Number of available advertising instances."""
-        return await self._adv_manager.get_supported_instances()  # type: ignore
+        return await self._adv_manager.get_supported_instances()
 
     async def supported_includes(self) -> list[Include]:
         """List of supported system includes."""
-        return await self._adv_manager.get_supported_includes()  # type: ignore
+        return await self._adv_manager.get_supported_includes()
 
     async def supported_secondary_channels(self) -> list[SecondaryChannel]:
         """List of supported Secondary channels.
         Secondary channels can be used to advertise  with the corresponding PHY.
         """
-        return await self._adv_manager.get_supported_secondary_channels()  # type: ignore
+        return await self._adv_manager.get_supported_secondary_channels()
 
     async def supported_capabilities(self) -> dict[Capability, Any]:
         """Enumerates Advertising-related controller capabilities useful to the client."""
-        return await self._adv_manager.get_supported_capabilities()  # type: ignore
+        return await self._adv_manager.get_supported_capabilities()
 
     async def supported_features(self) -> list[Feature]:
         """List  of supported platform features.
         If no features are available on the platform, the SupportedFeatures array will be empty.
         """
-        return await self._adv_manager.get_supported_features()  # type: ignore
+        return await self._adv_manager.get_supported_features()
