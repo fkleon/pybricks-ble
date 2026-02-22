@@ -14,6 +14,8 @@ from typing import (
     Annotated,
     Any,
     Callable,
+    Protocol,
+    cast,
     overload,
 )
 
@@ -482,12 +484,77 @@ class PybricksBroadcastAdvertisement(BroadcastAdvertisement):
         return f"PybricksBroadcastAdvertisement(channel={self.channel}, data={self.message!r}, timeout={self._timeout})"
 
 
+class LEAdvertisingManager1(Protocol):
+    """Protocol for the 'org.bluez.LEAdvertisingManager1' proxy interface."""
+
+    async def call_register_advertisement(self, path: str, options: dict) -> None:
+        """Registers an advertisement object to be sent over the LE Advertising channel.
+
+        The service must implement org.bluez.LEAdvertisement(5) interface.
+
+        Possible errors:
+
+            org.bluez.Error.InvalidArguments
+                Indicates that the object has invalid or conflicting properties.
+            org.bluez.Error.AlreadyExists
+                Indicates the object is already registered.
+            org.bluez.Error.InvalidLength
+                Indicates that the data provided generates a data packet which is too long.
+            org.bluez.Error.NotPermitted
+                Indicates the maximum number of advertisement instances has been reached.
+        """
+        ...
+
+    async def call_unregister_advertisement(self, path: str) -> None:
+        """Unregisters an advertisement that has been previously registered using RegisterAdvertisement().
+
+        The object path parameter must match the same value that has been used on registration.
+
+        Possible errors:
+
+            org.bluez.Error.InvalidArguments
+            org.bluez.Error.DoesNotExist
+        """
+        ...
+
+    async def get_active_instances(self) -> int:
+        """Number of active advertising instances."""
+        ...
+
+    async def get_supported_instances(self) -> int:
+        """Number of available advertising instances."""
+        ...
+
+    async def get_supported_includes(self) -> list[Include]:
+        """List of supported system includes."""
+        ...
+
+    async def get_supported_secondary_channels(self) -> list[SecondaryChannel]:
+        """List of supported Secondary channels.
+
+        Secondary channels can be used to advertise with the corresponding PHY.
+        """
+        ...
+
+    async def get_supported_capabilities(self) -> dict[Capability, Any]:
+        """Enumerates Advertising-related controller capabilities useful to the client."""
+        ...
+
+    async def get_supported_features(self) -> list[Feature]:
+        """List of supported platform features.
+
+        If no features are available on the platform, the SupportedFeatures array will be empty."""
+        ...
+
+
 class LEAdvertisingManager:
     """
     Client implementation of the `org.bluez.LEAdvertisementManager1` D-Bus interface.
     """
 
     INTERFACE_NAME: str = "org.bluez.LEAdvertisingManager1"
+
+    _adv_manager: LEAdvertisingManager1
 
     def __init__(
         self,
@@ -497,7 +564,12 @@ class LEAdvertisingManager:
         if adapter is None and adv_manager is None:
             raise ValueError("adapter or adv_manager required")
 
-        self._adv_manager = adv_manager or adapter.get_interface(self.INTERFACE_NAME)  # type: ignore
+        if adv_manager:
+            self._adv_manager = cast(LEAdvertisingManager1, adv_manager)
+        elif adapter:
+            self._adv_manager = cast(
+                LEAdvertisingManager1, adapter.get_interface(self.INTERFACE_NAME)
+            )
 
     async def register_advertisement(
         self, adv: LEAdvertisement, options: dict | None = None
@@ -511,7 +583,7 @@ class LEAdvertisingManager:
         :return: `None`
         """
         options = options or {}
-        return await self._adv_manager.call_register_advertisement(adv.path, options)  # type: ignore
+        return await self._adv_manager.call_register_advertisement(adv.path, options)
 
     @overload
     async def unregister_advertisement(self, adv: LEAdvertisement): ...
@@ -526,34 +598,34 @@ class LEAdvertisingManager:
         :return: `None`
         """
         if isinstance(adv, str):
-            return await self._adv_manager.call_unregister_advertisement(adv)  # type: ignore
+            return await self._adv_manager.call_unregister_advertisement(adv)
         else:
-            return await self._adv_manager.call_unregister_advertisement(adv.path)  # type: ignore
+            return await self._adv_manager.call_unregister_advertisement(adv.path)
 
     async def active_instances(self) -> int:
         """Number of active advertising instances."""
-        return await self._adv_manager.get_active_instances()  # type: ignore
+        return await self._adv_manager.get_active_instances()
 
     async def supported_instances(self) -> int:
         """Number of available advertising instances."""
-        return await self._adv_manager.get_supported_instances()  # type: ignore
+        return await self._adv_manager.get_supported_instances()
 
     async def supported_includes(self) -> list[Include]:
         """List of supported system includes."""
-        return await self._adv_manager.get_supported_includes()  # type: ignore
+        return await self._adv_manager.get_supported_includes()
 
     async def supported_secondary_channels(self) -> list[SecondaryChannel]:
         """List of supported Secondary channels.
         Secondary channels can be used to advertise  with the corresponding PHY.
         """
-        return await self._adv_manager.get_supported_secondary_channels()  # type: ignore
+        return await self._adv_manager.get_supported_secondary_channels()
 
     async def supported_capabilities(self) -> dict[Capability, Any]:
         """Enumerates Advertising-related controller capabilities useful to the client."""
-        return await self._adv_manager.get_supported_capabilities()  # type: ignore
+        return await self._adv_manager.get_supported_capabilities()
 
     async def supported_features(self) -> list[Feature]:
         """List  of supported platform features.
         If no features are available on the platform, the SupportedFeatures array will be empty.
         """
-        return await self._adv_manager.get_supported_features()  # type: ignore
+        return await self._adv_manager.get_supported_features()
