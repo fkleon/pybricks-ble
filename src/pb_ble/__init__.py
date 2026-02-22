@@ -62,6 +62,8 @@ __all__ = (
     "get_virtual_ble",
     "VirtualBLE",
     "PybricksBroadcast",
+    "PybricksBroadcastData",
+    "PybricksBroadcastValue",
     # Submodules
     "vhub",
     "bluezdbus",
