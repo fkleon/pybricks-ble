@@ -37,7 +37,7 @@ dev = [
     "types-cachetools ~= 5.3",
     "types-setuptools",
 ]
-docs = ["pdoc ~= 15.0"]
+docs = ["pdoc ~= 16.0"]
 
 [project.urls]
 Repository = "https://github.com/fkleon/pybricks-ble"
