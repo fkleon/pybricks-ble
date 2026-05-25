@@ -17,7 +17,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "bleak ~= 2.0",
+    "bleak ~= 3.0",
     "bluetooth-adapters ~= 2.3",
     "cachetools ~= 7.0",
     "dbus-fast ~= 5.0",

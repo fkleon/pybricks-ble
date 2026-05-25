@@ -131,14 +131,18 @@ class BlueZPybricksObserver(AbstractAsyncContextManager):
             rssi_threshold,
         )
 
+        bluez: BlueZScannerArgs = {
+            "filters": filters,
+            "or_patterns": or_patterns,
+        }
+
+        if adapter_name is not None:
+            bluez["adapter"] = adapter_name
+
         self._scanner = BleakScanner(
             detection_callback=self._callback,
             scanning_mode=scanning_mode,
-            bluez=BlueZScannerArgs(
-                filters=filters,
-                or_patterns=or_patterns,
-            ),
-            adapter=adapter_name,
+            bluez=bluez,
         )
 
     def _callback(self, device: BLEDevice, ad: AdvertisementData):
