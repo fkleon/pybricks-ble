@@ -47,7 +47,14 @@ def adapter_mock(bluez_mock: ProxyObject, adapter_name: str) -> YieldFixture[str
     with (
         unittest.mock.patch(
             "bluetooth_adapters.systems.linux.get_adapters_from_hci",
-            return_value={0: {"name": device_name, "bdaddr": "00:00:00:00:00:00"}},
+            return_value={
+                0: {
+                    "name": device_name,
+                    "bdaddr": "00:00:00:00:00:00",
+                    "powered": True,
+                    "advertise": True,
+                }
+            },
         ) as get_adapters_from_hci,  # noqa: F841
         unittest.mock.patch(
             "bluetooth_adapters.systems.linux.USBBluetoothDevice",

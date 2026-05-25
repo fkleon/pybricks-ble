@@ -2,11 +2,11 @@ from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
+from bluetooth_adapters import AdapterDetails
 from dbus_fast.aio import ProxyObject
 from dbus_fast.errors import DBusError
 
 from pb_ble.bluezdbus import LEAdvertisement, LEAdvertisingManager
-from pb_ble.bluezdbus.adapters import AdapterDetailsExt
 from pb_ble.bluezdbus.advertisement import Include, Type
 
 
@@ -44,7 +44,7 @@ class TestLEAdvertising:
 class TestLEAdvertisingManager:
     @pytest_asyncio.fixture(autouse=True)
     async def require_advertise(
-        self, adapter_details: AdapterDetailsExt, adapter_name: str
+        self, adapter_details: AdapterDetails, adapter_name: str
     ) -> None:
         if not adapter_details["advertise"]:
             pytest.skip(

@@ -1,10 +1,10 @@
 import pytest
 from _pytest.config import Config, Parser
+from bluetooth_adapters.models import AdapterDetails
 from dbus_fast.aio import MessageBus, ProxyObject
 from dbus_fast.constants import BusType
 
 from pb_ble.bluezdbus import get_adapter, get_adapter_details
-from pb_ble.bluezdbus.adapters import AdapterDetailsExt
 
 
 def pytest_addoption(parser: Parser):
@@ -34,6 +34,6 @@ async def adapter(message_bus: MessageBus, adapter_name: str) -> ProxyObject:
 
 
 @pytest.fixture
-async def adapter_details(adapter_name: str) -> AdapterDetailsExt:
+async def adapter_details(adapter_name: str) -> AdapterDetails:
     _, details = await get_adapter_details(adapter_name)
     return details

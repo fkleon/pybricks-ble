@@ -1,15 +1,15 @@
 import pytest
 import pytest_asyncio
+from bluetooth_adapters.models import AdapterDetails
 from dbus_fast.aio import ProxyObject
 from pytest_mock import MockerFixture
 
 from pb_ble import get_virtual_ble
-from pb_ble.bluezdbus.adapters import AdapterDetailsExt
 from pb_ble.bluezdbus.observer import ObservedAdvertisement
 
 
 @pytest_asyncio.fixture(autouse=True)
-async def require_ble(adapter_details: AdapterDetailsExt, adapter_name: str) -> None:
+async def require_ble(adapter_details: AdapterDetails, adapter_name: str) -> None:
     if not adapter_details["advertise"] or not adapter_details["passive_scan"]:
         pytest.skip(
             reason=f"Bluetooth adapter '{adapter_name}' does not support BLE capabilities"
