@@ -3,21 +3,19 @@ from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
+from bluetooth_adapters.models import AdapterDetails
 from dbus_fast.aio import MessageBus, ProxyObject
 
 from pb_ble.bluezdbus import (
     BlueZBroadcaster,
     BroadcastAdvertisement,
 )
-from pb_ble.bluezdbus.adapters import AdapterDetailsExt
 
 lock = Lock()
 
 
 @pytest_asyncio.fixture(autouse=True)
-async def require_advertise(
-    adapter_details: AdapterDetailsExt, adapter_name: str
-) -> None:
+async def require_advertise(adapter_details: AdapterDetails, adapter_name: str) -> None:
     if not adapter_details["advertise"]:
         pytest.skip(
             reason=f"Bluetooth adapter '{adapter_name}' does not support BLE advertising"

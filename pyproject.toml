@@ -18,7 +18,7 @@ classifiers = [
 
 dependencies = [
     "bleak ~= 2.0",
-    "bluetooth-adapters ~= 2.1",
+    "bluetooth-adapters ~= 2.3",
     "cachetools ~= 5.3",
     "dbus-fast ~= 4.0",
     "pybricks @ git+https://github.com/fkleon/pybricks-api@ble-type-fixes",

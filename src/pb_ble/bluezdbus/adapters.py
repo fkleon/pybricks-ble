@@ -13,45 +13,13 @@ logger = logging.getLogger(__name__)
 adapters = get_adapters()
 
 
-class AdapterDetailsExt(AdapterDetails):
-    """
-    Extended adapter details.
-    """
-
-    advertise: bool
-    """Whether the adapter supports advertising."""
-
-    powered: bool
-    """Whether the adapter is powered on."""
-
-
-async def get_all_adapter_details() -> dict[str, AdapterDetailsExt]:
-    await adapters.refresh()
-    adapters_ext = {}
-
-    # Lookup additional details about each adapter
-    for adapter, details in adapters.adapters.items():
-        if not (bluez_details := adapters._bluez.adapter_details.get(adapter)):  # type: ignore # _bluez is a private member
-            # Adapter not known to BlueZ, ignore it.
-            continue
-
-        advertise = "org.bluez.LEAdvertisingManager1" in bluez_details
-        powered = bluez_details["org.bluez.Adapter1"]["Powered"]
-
-        adapters_ext[adapter] = AdapterDetailsExt(
-            **details, advertise=advertise, powered=powered
-        )
-
-    return adapters_ext
-
-
 async def get_adapter_details(
     adapter_name: str = adapters.default_adapter,
-) -> tuple[str, AdapterDetailsExt]:
-    adapters = await get_all_adapter_details()
-    if adapter_name not in adapters:
+) -> tuple[str, AdapterDetails]:
+    await adapters.refresh()
+    if adapter_name not in adapters.adapters:
         raise ValueError(f"Adapter '{adapter_name}' not available")
-    return adapter_name, adapters[adapter_name]
+    return adapter_name, adapters.adapters[adapter_name]
 
 
 async def get_adapter(
