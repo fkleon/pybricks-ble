@@ -21,7 +21,7 @@ dependencies = [
     "bluetooth-adapters ~= 2.3",
     "cachetools ~= 7.0",
     "dbus-fast ~= 5.0",
-    "pybricks @ git+https://github.com/fkleon/pybricks-api@ble-type-fixes",
+    "pybricks @ git+https://github.com/pybricks/pybricks-api@7900f03574ab8560a4954a1a0e59bb168aed1281",
 ]
 
 [dependency-groups]
