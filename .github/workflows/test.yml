@@ -10,6 +10,7 @@ jobs:
         os: [
             "ubuntu-22.04", # Python 3.10, BlueZ 5.64, dbus-python 1.2.18
             "ubuntu-24.04", # Python 3.12, BlueZ 5.72, dbus-python 1.3.2
+            "ubuntu-26.04", # Python 3.14, BlueZ 5.85, dbus-python 1.4.0
           ]
     runs-on: ${{ matrix.os }}
     steps:
