@@ -4,7 +4,7 @@ from typing import ClassVar, Sequence, cast
 
 from dbus_fast.aio import MessageBus, ProxyObject
 from dbus_fast.constants import BusType
-from pybricks.hubs import _common
+from pybricks.messaging import BLERadio
 
 from .bluezdbus import (
     BlueZBroadcaster,
@@ -22,7 +22,7 @@ from .constants import (
 )
 
 
-class VirtualBLE(_common.BLE, AsyncExitStack):
+class VirtualBLE(BLERadio, AsyncExitStack):
     DEFAULT_DEVICE_NAME: ClassVar[str] = "pb_vhub"
     """The default device name to use in data broadcasts."""
     DEFAULT_DEVICE_VERSION: ClassVar[str] = "1.0"

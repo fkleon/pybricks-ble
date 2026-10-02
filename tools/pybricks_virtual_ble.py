@@ -6,13 +6,13 @@ import asyncio
 import random
 
 from async_timer.pacemaker import TimerPacemaker
-from pybricks import _common
+from pybricks.messaging import BLERadio
 
 from pb_ble import get_virtual_ble
 from pb_ble.constants import ScanningMode
 
 
-async def observe(vble: _common.BLE, observe_channel: int, interval: float = 1.0):
+async def observe(vble: BLERadio, observe_channel: int, interval: float = 1.0):
     """
     Coroutine that polls and prints broadcasting data
     on the given interval.
@@ -24,7 +24,7 @@ async def observe(vble: _common.BLE, observe_channel: int, interval: float = 1.0
             print(f"Observation: '{data!r}' [{rssi} dBm]")
 
 
-async def broadcast(vble: _common.BLE, interval: float = 10.0):
+async def broadcast(vble: BLERadio, interval: float = 10.0):
     """
     Coroutine that broadcasts a new random number
     on the given interval.
